@@ -32,8 +32,14 @@ function setup() {
         storeItem('influence', influence.checked())
     })
 
+    playerToMove = createP()
     redScoreP = createP()
     whiteScoreP = createP()
+
+    createButton('Pass').mousePressed(() => {
+        board.turn = -board.turn
+        updateScores()
+    })
 
     updateScores()
 }
@@ -50,6 +56,7 @@ function updateScores() {
         }
     }
 
+    playerToMove.elt.innerHTML = 'Player to move: ' + ((board.turn > 0) ? 'Red' : 'White')
     redScoreP.elt.innerHTML = 'Red score: ' + redScore
     whiteScoreP.elt.innerHTML = 'White score: ' + whiteScore
 }
@@ -71,6 +78,20 @@ hexColors = {
 function draw() {
     // background(150)
     clear()
+
+    let prevColor, prevHeight, temp
+
+    let M = L.pixelToHex(new Point(mouseX, mouseY)).round()
+    if (board.contains(M.q, M.r, M.s)) {
+        M = board[M.q][M.r]
+        if (M.playableFor(board.turn)) {
+            prevColor = M.color
+            prevHeight = M.height
+            temp = true
+            board.update(M.q, M.r, board.turn, M.los[board.turn])
+        }
+    }
+
     let N = board.size
     for (let q = -N+1; q < N; q ++) {
         for (let r = -N+1; r < N; r ++) {
@@ -117,9 +138,32 @@ function draw() {
                 let center = L.hexToPixel(H)
                 if (H.height) {
                     fill(stackColors[H.color])
-                    stroke('black')
-                    // strokeWeight(4)
+                    strokeWeight(3)
+                    if (H.color) {
+                        if (H.playableFor(-H.color)) {
+                            stroke(stackColors[-H.color])
+                        } else {
+                            stroke('black')
+                            strokeWeight(1)
+                        }
+                    } else {
+                        if (H.playableFor(1)) {
+                            if (H.playableFor(-1)) {
+                                stroke(hexColors[0])
+                            } else {
+                                stroke(stackColors[1])
+                            }
+                        } else {
+                            if (H.playableFor(-1)) {
+                                stroke(stackColors[-1])
+                            } else {
+                                stroke('black')
+                                strokeWeight(1)
+                            }
+                        }
+                    }
                     circle(center.x, center.y, stackR)
+                    strokeWeight(1)
                     fill('black')
                     noStroke()
                     text(H.height, center.x, center.y+1)
@@ -129,19 +173,23 @@ function draw() {
     }
     pop()
 
+    // updateScores()
+
+    if (temp) board.update(M.q, M.r, prevColor, prevHeight)
+
     
-    let H = L.pixelToHex(new Point(mouseX, mouseY)).round()
-    if (board.contains(H.q, H.r, H.s)) {
-        H = board[H.q][H.r]
-        if (H.playableFor(board.turn)) {
-            fill(stackColors[board.turn])
-            let center = L.hexToPixel(H)
-            circle(center.x, center.y, stackR)
-            fill('black')
-            noStroke()
-            text(H.los[board.turn], center.x, center.y+1)
-        }
-    }
+    // let H = L.pixelToHex(new Point(mouseX, mouseY)).round()
+    // if (board.contains(H.q, H.r, H.s)) {
+    //     H = board[H.q][H.r]
+    //     if (H.playableFor(board.turn)) {
+    //         fill(stackColors[board.turn])
+    //         let center = L.hexToPixel(H)
+    //         circle(center.x, center.y, stackR)
+    //         fill('black')
+    //         noStroke()
+    //         text(H.los[board.turn], center.x, center.y+1)
+    //     }
+    // }
 }
 
 function mousePressed() {
@@ -150,8 +198,9 @@ function mousePressed() {
         H = board[H.q][H.r]
         if (H.playableFor(board.turn)) {
             board.update(H.q, H.r, board.turn, H.los[board.turn])
-            updateScores()
             board.turn = -board.turn
+            updateScores()
+            
         }
     }
 }
@@ -183,6 +232,6 @@ function windowResized() {
     resizeCanvas(R*2*sqrt(3)*board.size, R*3*board.size)
     stackR = R*sqrt(3)/2*0.9
     textSize(R)
-    strokeWeight(1 + (R > 30))
+    strokeWeight(1)
     L = new Layout(Layout.pointy, new Point(R, R), new Point(width/2, height/2))
 }
