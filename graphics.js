@@ -1,3 +1,5 @@
+const letterCoordinates = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
 function setup() {
     textAlign(CENTER, CENTER)
     
@@ -10,8 +12,6 @@ function setup() {
     } else {
         board = new Board(8)
     }
-
-    windowResized()
 
     createButton('6').mousePressed(() => {
         board = new Board(6)
@@ -31,6 +31,13 @@ function setup() {
     influence = createCheckbox('Influence', getItem('influence') || false).changed(() => {
         storeItem('influence', influence.checked())
     })
+
+    coordinates = createCheckbox('Coordinates', getItem('coordinates') || false).changed(() => {
+        storeItem('coordinates', coordinates.checked())
+        windowResized()
+    })
+
+    windowResized()
 
     playerToMove = createP()
     redScoreP = createP()
@@ -79,6 +86,52 @@ function draw() {
     // background(150)
     clear()
 
+    let N = board.size
+
+    if (coordinates.checked()) {
+        push()
+        textSize(R/2)
+        fill('black')
+        noStroke()
+        for (let q = 1; q < N+1; q ++) {
+            let r = -N
+            let H = new Hex(q, r, -q-r)
+            let center = L.hexToPixel(H)
+            noStroke()
+            text(letterCoordinates[q-1], center.x, center.y)
+            push()
+            translate(center.x, center.y)
+            rotate(TAU/12)
+            stroke('black')
+            line(0, R/2, 0, R)
+            pop()
+        }
+
+        for (let r = -N+1; r < 0; r ++) {
+            let q = N
+            let H = new Hex(q, r, -q-r)
+            let center = L.hexToPixel(H)
+            text(letterCoordinates[2*N + r - 1], center.x, center.y)
+            push()
+            translate(center.x, center.y)
+            rotate(TAU/12)
+            stroke('black')
+            line(0, R/2, 0, R)
+            pop()
+        }
+
+        for (let r = -N+1; r < N; r ++) {
+            let q = max(-N-r, -N)
+            let H = new Hex(q, r, -q-r)
+            let center = L.hexToPixel(H)
+            noStroke()
+            text(r+N, center.x, center.y)
+            stroke('black')
+            line(center.x + R/2, center.y, center.x + R, center.y)
+        }
+        pop()
+    }
+
     let prevColor, prevHeight, temp
 
     let M = L.pixelToHex(new Point(mouseX, mouseY)).round()
@@ -91,8 +144,6 @@ function draw() {
             board.update(M.q, M.r, board.turn, M.los[board.turn])
         }
     }
-
-    let N = board.size
     for (let q = -N+1; q < N; q ++) {
         for (let r = -N+1; r < N; r ++) {
             let s = -q-r
@@ -177,19 +228,11 @@ function draw() {
 
     if (temp) board.update(M.q, M.r, prevColor, prevHeight)
 
-    
-    // let H = L.pixelToHex(new Point(mouseX, mouseY)).round()
-    // if (board.contains(H.q, H.r, H.s)) {
-    //     H = board[H.q][H.r]
-    //     if (H.playableFor(board.turn)) {
-    //         fill(stackColors[board.turn])
-    //         let center = L.hexToPixel(H)
-    //         circle(center.x, center.y, stackR)
-    //         fill('black')
-    //         noStroke()
-    //         text(H.los[board.turn], center.x, center.y+1)
-    //     }
-    // }
+    // fill('black')
+    // noStroke()
+    // text(M.q, 50, 50)
+    // text(M.r, 50, 100)
+
 }
 
 function mousePressed() {
@@ -226,10 +269,11 @@ function keyPressed() {
 }
 
 function windowResized() {
-    let Rx = windowWidth/(2*sqrt(3)*board.size)
-    let Ry = windowHeight/(3*board.size)
+    let N = board.size + coordinates.checked()
+    let Rx = windowWidth/(2*sqrt(3)*N)
+    let Ry = windowHeight/(3*N)
     R = min(Rx, Ry)
-    resizeCanvas(R*2*sqrt(3)*board.size, R*3*board.size)
+    resizeCanvas(R*2*sqrt(3)*N, R*3*N)
     stackR = R*sqrt(3)/2*0.9
     textSize(R)
     strokeWeight(1)
