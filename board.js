@@ -2,6 +2,7 @@ class Board {
     constructor(size) {
         this.size = size
         this.turn = 1
+        this.moveNumber = 0
         this.hexes = []
         for (let q = -size+1; q < size; q ++) {
             this[q] = {}
@@ -16,11 +17,11 @@ class Board {
 
         this.update(0, 0, 0, 2)
 
-        let H = this.randomEmpty()
-        this.update(H.q, H.r, 1, 1)
+        // let H = this.randomEmpty()
+        // this.update(H.q, H.r, 1, 1)
 
-        H = this.randomEmpty()
-        this.update(H.q, H.r, -1, 1)
+        // H = this.randomEmpty()
+        // this.update(H.q, H.r, -1, 1)
     }
 
     contains(q, r, s = -r-q) {
@@ -34,6 +35,8 @@ class Board {
         let prevHeight = this[Q][R].height
         this[Q][R].color = color
         this[Q][R].height = height
+
+        this.moveNumber ++
 
         for (let d of Hex.directions) {
             let [q, r] = [Q - d.q, R - d.r]

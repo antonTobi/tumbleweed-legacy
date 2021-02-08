@@ -40,13 +40,15 @@ function setup() {
     windowResized()
 
     playerToMove = createP()
-    redScoreP = createP()
-    whiteScoreP = createP()
 
     createButton('Pass').mousePressed(() => {
         board.turn = -board.turn
         updateScores()
     })
+    redScoreP = createP()
+    whiteScoreP = createP()
+
+    createA('https://github.com/le4TC/tumbleweed', 'Help', '_blank')
 
     updateScores()
 }
@@ -137,11 +139,11 @@ function draw() {
     let M = L.pixelToHex(new Point(mouseX, mouseY)).round()
     if (board.contains(M.q, M.r, M.s)) {
         M = board[M.q][M.r]
-        if (M.playableFor(board.turn)) {
+        if (M.playableFor(board.turn) || ((board.moveNumber < 3) && M.height == 0)) {
             prevColor = M.color
             prevHeight = M.height
             temp = true
-            board.update(M.q, M.r, board.turn, M.los[board.turn])
+            board.update(M.q, M.r, board.turn, max(M.los[board.turn], 1))
         }
     }
     for (let q = -N+1; q < N; q ++) {
@@ -226,7 +228,10 @@ function draw() {
 
     // updateScores()
 
-    if (temp) board.update(M.q, M.r, prevColor, prevHeight)
+    if (temp) {
+        board.update(M.q, M.r, prevColor, prevHeight)
+        board.moveNumber -= 2
+    }
 
     // fill('black')
     // noStroke()
@@ -239,8 +244,8 @@ function mousePressed() {
     let H = L.pixelToHex(new Point(mouseX, mouseY)).round()
     if (board.contains(H.q, H.r, H.s)) {
         H = board[H.q][H.r]
-        if (H.playableFor(board.turn)) {
-            board.update(H.q, H.r, board.turn, H.los[board.turn])
+        if (H.playableFor(board.turn) || ((board.moveNumber < 3) && H.height == 0)) {
+            board.update(H.q, H.r, board.turn, max(H.los[board.turn], 1))
             board.turn = -board.turn
             updateScores()
             
