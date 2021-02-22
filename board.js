@@ -43,24 +43,36 @@ class Board {
     }
 
     isLegal(H) {
-        if (H[this.turn] <= H.height) return false
-        if (H[this.turn] < H[-this.turn] && !suicides.checked()) return false
-        return zeroStacks.checked() || !this.stackCounts[this.turn] || H[this.turn]
+        if (zeroStacks.checked()) {
+            if (H[this.turn] <= H.height) return false
+            if (H[this.turn] < H[-this.turn] && !suicides.checked()) return false
+            return true
+        } else {
+            let potentialHeight = H[this.turn]
+            if (!this.stackCounts[this.turn]) potentialHeight = 1
+            if (potentialHeight == 0) return false
+            if (potentialHeight <= H.height) return false
+            if (potentialHeight < H[-this.turn] && !suicides.checked()) return false
+            return true
+        }
     }
 
     move(q, r) {
         let height = this[q][r][this.turn]
         if (!height && !zeroStacks.checked()) height = 1
         this.update(q, r, this.turn, height)
-        this.turn = -this.turn
     }
 
     undo() {
         if (this.moveHistory.length) {
             let unMove = this.moveHistory.pop()
-            if (unMove) this.update(...unMove, false)
-            this.moveNumber --
-            this.turn = -this.turn
+            if (unMove) {
+                this.update(...unMove, true)
+            } else {
+                this.moveNumber --
+                this.turn = -this.turn
+            }
+            
         }
         
     }
@@ -72,7 +84,7 @@ class Board {
         
     }
 
-    update(Q, R, color, height, record = true) {
+    update(Q, R, color, height, switchTurn = true, undoing = false) {
         let U = this[Q][R]
         let prevColor = U.color
         let prevHeight = U.height
@@ -80,13 +92,22 @@ class Board {
         this.stackCounts[prevColor] --
         this.stackCounts[color] ++
 
-        if (record) {
-            this.moveNumber ++
+        if (switchTurn) {
+            this.turn = -this.turn
+            if (undoing) {
+                this.moveNumber --
+            } else {
+                this.moveNumber ++
+            }
+        }
+
+        if (!undoing) {
             this.moveHistory.push([
                 Q,
                 R,
                 prevColor,
-                prevHeight
+                prevHeight,
+                switchTurn
             ])
         }
         
