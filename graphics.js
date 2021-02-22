@@ -26,7 +26,7 @@ function setup() {
 
     
 
-    boardSize.selected(getItem('boardsize'), 8)
+    boardSize.selected(getItem('boardsize') || 8)
 
     boardSize.changed(() => {
         // let n = Number(boardSize.value())

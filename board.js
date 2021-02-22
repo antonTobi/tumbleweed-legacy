@@ -311,7 +311,7 @@ function loadBoard(s) {
         let color = 'abcdefghijklmnopqrstuvwxyz'.indexOf(s[i])
         let height = color % 8
         color -= height
-        color /= 8
+        color /= 8  
         color -= 1
         let H = board.hexes[i]
         board.update(H.q, H.r, color, height, false)

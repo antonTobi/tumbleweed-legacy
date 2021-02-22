@@ -17,7 +17,9 @@ Use backspace to remove stacks, or any of these keys to place stacks of differen
 7-stacks behave identically as 6-stacks, but are shown as blank. This may be useful to create some diagrams.
 
 ### Sharing
-To share the current position, click the "Link" button and then copy the new url.
+Use the "Link" button to create a link to the current position. Note that the tool is completely client-side, so there is no collaborative editing or playing unfortunately. The link simply let's everyone look at the same position for themselves and try out sequences on the board.
+
+You can also right click the white area to the lower right of the board and choose "Copy image". This might be more convenient to share a quick diagram, for instance in Discord you can just Ctrl+V to share the copied image.
 
 ### Visualization
 There are some options to help visualize the position:
