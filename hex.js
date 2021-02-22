@@ -6,27 +6,55 @@ class Point {
     }
 }
 class Hex {
-    constructor(q, r, s) {
+    constructor(q, r, s = -q-r) {
         this.q = q;
         this.r = r;
         this.s = s;
         if (Math.round(q + r + s) !== 0)
             throw "q + r + s must be 0";
         
-        this.color = 0
-        this.height = 0
-        this.los = {
-            '1': 0,
-            '-1': 0,
-            '0': 0
-        }
+        this.color = null
+        this.height = -1
+        this[1] = 0
+        this[-1] = 0
+
+
+        // stack or null
+        this.seen = new Array(6).fill(null)
+
+        // number of empty cells in each direction
+        this.distances = new Array(6)
+        this.strength = 0
     }
     playableFor(color) {
-        return ((this.los[color] > this.height &&
-            this.los[color] >= this.los[-color]))
+        return (this[color] > this.height &&
+            (suicides.checked() || this[color] >= this[-color]))
     }
     toChar() {
-        return 'a.bcdefghijklmnopqrstuvwxyz'[(this.height*3)+this.color+1]
+        if (this.color == null) return '-'
+        return 'abcdefghijklmnopqrstuvwxyz'[this.height+(this.color+1)*8]
+    }
+    heuristic(turn) {  
+        // reinforcements are good if capture is threatened, otherwise pretty bad
+        if (this.color == turn) {
+            if (this.height <= this[-turn] && this[turn] <= this[-turn]) return 90
+            else return 30
+        }
+  
+        // captures are always pretty good, but slightly less if they can't be reinforced directly
+        // this might be wack though, because there are other ways to reinforce
+        if (this.color == -turn) {
+            if (this[1] == this[-1]) return 100 + 2*this[1] + this.height
+            else return 80 + 2*this[1]
+        }
+  
+        // claiming the neutral stack is better than playing in empty space, but worse than capturing opponent
+        if (this.height) {
+            if (this[1] == this[-1]) return 85
+            else return 60 - 10*this[turn]
+        }
+  
+        return 72 - 2 * (this[turn] - this[-turn])**2
     }
     add(b) {
         return new Hex(this.q + b.q, this.r + b.r, this.s + b.s);
