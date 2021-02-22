@@ -24,15 +24,15 @@ You can also right click the white area to the lower right of the board and choo
 ### Visualization
 There are some options to help visualize the position:
 
-Influence: shows which player has more control over each empty hex.
-Lines of sight: draws lines from the move you're about to place to the other stacks it can see (only if "Next move" is enabled)
-Captures: indicates stacks that can be captured.
-Last move: marks the last move made.
-Next move: shows the move you're about to place and its effect on the board.
+- Influence: shows which player has more control over each empty hex.
+- Lines of sight: draws lines from the move you're about to place to the other stacks it can see (only if "Next move" is enabled)
+- Captures: indicates stacks that can be captured.
+- Last move: marks the last move made.
+- Next move: shows the move you're about to place and its effect on the board.
 
 ### Gameplay options
-0-stacks: Allows placement where you have no lines of sight.
-Suicides: Allows suicidal moves.
+- 0-stacks: Allows placement where you have no lines of sight.
+- Suicides: Allows suicidal moves.
 
 <!-- ### AI
 There is a basic weak AI built into the editor. Click the "AI move" button to make the AI play a move. Check "Autorespond" to make the AI respond to all your moves. -->
