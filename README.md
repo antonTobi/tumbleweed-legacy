@@ -21,9 +21,7 @@ Use the "Link" button to create a link to the current position. Note that the to
 
 You can also right click the white area to the lower right of the board and choose "Copy image". This might be more convenient to share a quick diagram, for instance in Discord you can just Ctrl+V to share the copied image.
 
-### Visualization
-There are some options to help visualize the position:
-
+### Visualization options
 - Influence: shows which player has more control over each empty hex.
 - Lines of sight: draws lines from the move you're about to place to the other stacks it can see (only if "Next move" is enabled)
 - Captures: indicates stacks that can be captured.
