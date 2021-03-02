@@ -1,5 +1,9 @@
+// TODO: Save game history in board.toString() somehow.
+
+// TODO: Come up with format for saving games + variations. Possibly just use sgf?
+
 class Board {
-    constructor(size) {
+    constructor(size, addNeutral = true) {
         this.size = size
         this.turn = 1
         this.moveNumber = 0
@@ -33,7 +37,7 @@ class Board {
             null: this.hexes.length
         }
 
-        if (!zeroStacks.checked()) this.update(0, 0, 0, 2, false)        
+        if (addNeutral && !zeroStacks.checked()) this.update(0, 0, 0, 2, false, true)        
     }
 
     contains(q, r, s = -r-q) {
@@ -257,11 +261,6 @@ class Board {
 
     legalMoves() {
         return this.hexes.filter(H => this.isLegal(H))
-        // if (this.moveNumber < 2) {
-        //     return this.hexes.filter(H => !H.height)
-        // } else {
-        //     return this.hexes.filter(H => H.playableFor(this.turn))
-        // }
     }
 
     loudMoves() {
@@ -326,7 +325,7 @@ class Board {
 
 function loadBoard(s) {
     let size = ceil((3 + sqrt(12*s.length-3)) / 6)
-    let board = new Board(size)
+    let board = new Board(size, false)
     for (let i = 0; i < s.length; i ++) {
         if (s[i] == '-') continue
         let color = 'abcdefghijklmnopqrstuvwxyz'.indexOf(s[i])

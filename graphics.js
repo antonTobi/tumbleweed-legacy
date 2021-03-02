@@ -1,13 +1,8 @@
-// TODO: Better board.toString(), probably with run-length encoding.
-
-// TODO: Save game history in board.toString() somehow.
-
-// TODO: Come up with format for saving games + variations. Possibly just use sgf?
-
 const letterCoordinates = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 function setup() {
     textAlign(CENTER, CENTER)
+    textFont('Helvetica')
     ellipseMode(RADIUS)
 
     createButton('New board').mousePressed(() => {
@@ -60,7 +55,7 @@ function setup() {
         lines: 'Lines of sight',
         captures: 'Captures',
         lastMove: 'Last move',
-        nextMove: 'Next move',
+        nextMove: 'Move preview',
         coordinates: 'Coordinates',
         // autorespond: 'Autorespond',
         zeroStacks: '0-stacks',
@@ -76,6 +71,12 @@ function setup() {
         })
     }
 
+    createP()
+    createDiv('Stack style:')
+    stackStyle = createSelect()
+    stackStyle.option('Hex')
+    stackStyle.option('Circle')
+    
     let boardString = getURLParams().board // || getItem('board')
 
     if (boardString) {
@@ -83,8 +84,6 @@ function setup() {
     } else {
         board = new Board(getItem('boardsize') || 8)
     }
-
-    // createP('Size: ')
 
     windowResized()
 
@@ -107,12 +106,28 @@ function setup() {
         '0': 'gray',
         '-1': 'white'
     }
+
+    strokeColors = {
+        '1': color(200, 0, 0),
+        '0': color(100),
+        '-1': color(200)
+    }
     
     hexColors = {
-        '0': '#FF8888',
-        '-1': '#FFCCCC',
-        '1': '#FF4444'
+        '1': color(150, 10, 10),
+        '-1': color(200),
+        null: color(20)
     }
+
+    hexColors[0] = lerpColor(hexColors[1], hexColors[-1], 0.5)
+    hexColors[0] = color(60)
+
+    boardColor = color('#EAD185')
+    // boardColor = color(random(255), random(255), random(255))
+    // boardStrokeColor = color(0, 100)
+    
+    // lastMoveColor = lerpColor(boardColor, color(0), 0.8)
+    boardStrokeColor = lerpColor(boardColor, color(0), 0.2)
 
     // colorPicker1 = createColorPicker('red').changed( () => {
     //     stackColors[1] = colorPicker1.color()
@@ -121,9 +136,13 @@ function setup() {
     //     stackColors[-1] = colorPicker2.color()
     // })
 
+    // createA('https://boardgamegeek.com/boardgame/318702/tumbleweed', 'Rules', '_blank')
+    createDiv('<a href="https://boardgamegeek.com/boardgame/318702/tumbleweed">Rules</a>')
     createA('https://github.com/le4TC/tumbleweed', 'Help', '_blank')
 
     updateScores()
+
+    // colorPickerA = createColorPicker('#ff0000')
 }
 
 function genmove() {
@@ -156,6 +175,13 @@ function draw() {
     let N = board.size
     let number, letter
 
+    let lastMoveHex
+    let move = board.moveHistory[board.moveHistory.length-1]
+    if (move) {
+        let [q, r, c, h] = move
+        lastMoveHex = board[q][r]
+    }
+
     // make temporary move
     let temp
     let M = L.pixelToHex(new Point(mouseX, mouseY)).round()
@@ -164,14 +190,15 @@ function draw() {
         letter = letterCoordinates[M.q + number - 1]
         M = board[M.q][M.r]
         if (nextMove.checked() && board.isLegal(M)) {
-            temp = true
+            temp = M
             board.move(M.q, M.r)
         }
     }
 
+    // draw coordinates
     if (coordinates.checked()) {
         push()
-        textSize(R/2)
+        textSize(0.8*R)
         noStroke()
         for (let q = 1; q < N+1; q ++) {
             let r = -N
@@ -183,6 +210,7 @@ function draw() {
             } else {
                 fill(200)
             }
+            fill('black')
             text(letterCoordinates[q-1], center.x, center.y)
             push()
             translate(center.x, center.y)
@@ -202,6 +230,7 @@ function draw() {
             } else {
                 fill(200)
             }
+            fill('black')
             text(letterCoordinates[2*N + r - 1], center.x, center.y)
             push()
             translate(center.x, center.y)
@@ -222,6 +251,7 @@ function draw() {
             } else {
                 fill(200)
             }
+            fill('black')
             text(r+N, center.x, center.y)
             stroke(200)
             strokeWeight(medium)
@@ -233,61 +263,89 @@ function draw() {
 
     
 
-    // draw hexes
+    // draw empty hexes
+
+    strokeWeight(thick)
     for (let q = -N+1; q < N; q ++) {
         for (let r = -N+1; r < N; r ++) {
             let s = -q-r
             if (abs(s) < N) {
                 let H = board[q][r]
-                // let center = L.hexToPixel(H)
-                if (H.color != null) {
-                    // fill(hexColors[H.color])
-                    // if (H.color && H[-H.color] > H.height) {
-                    //     fill(stackColors[-H.color])
-                    // }
-                    if (H.color) fill(hexColors[H.color])
-                    else fill(50)
-                    // fill(50)
-                    
-                } else {
+                if (influence.checked()) {
                     if (H[1] == 0 && H[-1] == 0) {
-                        fill(50)
+                        fill(hexColors[null])
                     } else {
                         fill(hexColors[Math.sign(H[1]-H[-1])])
                     }
-                    
+                } else {
+                    fill(boardColor)
                 }
-                
-                if (!influence.checked()) fill('#EAC185')
-                stroke('white')
-                strokeWeight(thin)
+                if (influence.checked()) {
+                    stroke('white')
+                    strokeWeight(thin)
+                }
+                else stroke(boardStrokeColor)
+
+                // new style
+                // stroke('#804040')
+                // strokeWeight(medium*2+1)
+                // fill('#FF8080')
+
+
                 beginShape()
                 for (let corner of L.polygonCorners(H)) {
                     vertex(corner.x, corner.y)
                 }
                 endShape(CLOSE)
+                
             }
             
         }
     }
 
+
+    // go board style!
+    // noStroke()
+    // let center = L.hexToPixel(board[0][0])
+    // regularPolygon(center.x, center.y, board.size * sqrt(3)*R, 6, 0)
+
+    // strokeWeight(thick)
+    // stroke(boardStrokeColor)
+    // for (let q = -N+1; q < N; q ++) {
+    //     for (let r = -N+1; r < N; r ++) {
+    //         let s = -q-r
+    //         if (abs(s) < N) {
+    //             let H = board[q][r]
+    //             let center = L.hexToPixel(H)
+    //             for (let d = 0; d < 6; d ++) {
+    //                 let G = H.neighbor(d)
+    //                 if (board.contains(G.q, G.r)) {
+    //                     let target = L.hexToPixel(G)
+    //                     line(center.x, center.y, target.x, target.y)
+    //                 }
+                    
+    //             }                
+    //         }
+    //     }
+    // }
+
     // highlight marked hex
-    if (board.contains(M.q, M.r)) {
-        stroke('black')
-        noFill()
-        strokeWeight(medium)
-        noStroke()
-        fill(influence.checked() ? 255 : 0, 50)
-        beginShape()
-        for (let corner of L.polygonCorners(M)) {
-            vertex(corner.x, corner.y)
-        }
-        endShape(CLOSE)
-    }
+    // if (board.contains(M.q, M.r)) {
+    //     stroke('black')
+    //     noFill()
+    //     strokeWeight(medium)
+    //     noStroke()
+    //     fill(influence.checked() ? 255 : 0, 50)
+    //     beginShape()
+    //     for (let corner of L.polygonCorners(M)) {
+    //         vertex(corner.x, corner.y)
+    //     }
+    //     endShape(CLOSE)
+    // }
 
 
     // draw lines
-    if (temp && lines.checked() && board.moveHistory.length) {
+    if (lines.checked() && board.moveHistory.length && temp) {
         let [p, q, c, h] = board.moveHistory[board.moveHistory.length - 1]
         let M = board[p][q]
         let center = L.hexToPixel(M)
@@ -313,7 +371,6 @@ function draw() {
         }
     }
 
-
     // draw stacks
     for (let q = -N+1; q < N; q ++) {
         for (let r = -N+1; r < N; r ++) {
@@ -322,16 +379,21 @@ function draw() {
                 let H = board[q][r]
                 let center = L.hexToPixel(H)
                 if (H.color != null) {
+                    // noStroke()
+                    // fill('black')
+                    // circle(center.x+2, center.y+3, stackR)
                     fill(stackColors[H.color])
-                    
+                    // stroke(boardStrokeColor)
+                    // stroke(lerpColor(color(stackColors[H.color]), color(0), 0.3))
+                    stroke(strokeColors[H.color])
+                    if (H == lastMoveHex) {
+                        stroke('black')
+                    }
+                    strokeWeight(medium*2)
                     if (captures.checked()) {
-                        strokeWeight(thick)
                         if (H.color) {
                             if (H.playableFor(-H.color)) {
                                 stroke(stackColors[-H.color])
-                            } else {
-                                stroke('black')
-                                strokeWeight(thin)
                             }
                         } else {
                             if (H.playableFor(1)) {
@@ -343,22 +405,21 @@ function draw() {
                             } else {
                                 if (H.playableFor(-1)) {
                                     stroke(stackColors[-1])
-                                } else {
-                                    stroke('black')
-                                    strokeWeight(thin)
                                 }
                             }
                         }
-                    } else {
-                        stroke('black')
-                        strokeWeight(thin)
                     }
                     
-                    circle(center.x, center.y, stackR)
-                    strokeWeight(thin)
+                    if (stackStyle.value() == 'Hex') {
+                        regularPolygon(center.x, center.y, R-medium, 6)
+                    } else {
+                        circle(center.x, center.y, stackR-medium)
+                    }
+                    noStroke()
                     fill('black')
                     if (H.color == 1) {
                         fill(stackColors[-1])
+                        
                         // if (H.playableFor(-1)) {
                         //     fill(255, 127)
                         // }
@@ -370,14 +431,29 @@ function draw() {
                     }
                     if (H.color == 0) {
                         fill(50)
+                        stroke(50)
                     }
                     if (H.height > 6) {
                         noFill()
                     }
                     noStroke()
 
-                    textSize(R)
-                    text(H.height, center.x, center.y+1)
+                    textSize(R*1.1)
+                    text(H.height, center.x, center.y+0.05*R)
+
+                    // drawDots(center.x, center.y, H.height)
+
+                    // stroke('black')
+                    // noFill()
+
+                    // noStroke()
+                    // let parity = !!(H.height % 2)
+                    // for (let i = 0; i < H.height; i ++) {
+                    //     fill(parity ? stackColors[H.color] : color(0, 127))
+                    //     circle(center.x, center.y, stackR - stackR*i/6)
+                    //     parity = !parity
+                    // }
+                    
 
 
                     // show strength
@@ -387,33 +463,30 @@ function draw() {
                     //     text(H.strength.toFixed(2), center.x, center.y + R/2)
                     //     pop()
                     // }
+
+                    if (H == temp) {
+                        fill('#EAD18570')
+                        noStroke()
+                        if (stackStyle.value() == 'Hex') {
+                            regularPolygon(center.x, center.y, R, 6)
+                        } else {
+                            circle(center.x, center.y, stackR)
+                        }
+                        
+                    }
                     
                 }
             }
         }
     }
 
-    // last move indicator
-
-    if (lastMove.checked()) {
-        for (let i = board.moveHistory.length - 1; i >= 0 && (i > board.moveHistory.length - 2 - !!temp); i --) {
-            push() 
-            let move = board.moveHistory[i]
-            if (move == null) continue
-            let [q, r, c, h] = move
-
-            let H = board[q][r]
-            if (H.playableFor(-H.color)) continue
-            if (H.color != null) {
-                let center = L.hexToPixel(board[q][r])
-                stroke('black')
-                strokeWeight(thick)
-                noFill()
-                circle(center.x, center.y, stackR)
-            }
-            pop()
-        }
-    }
+    // if (lastMoveHex) {
+    //     let center = L.hexToPixel(lastMoveHex)
+    //     stroke('black')
+    //     strokeWeight(medium*2)
+    //     noFill()
+    //     circle(center.x, center.y, stackR-3*medium)
+    // }
 
 
     // show loud moves
@@ -488,8 +561,34 @@ function windowResized() {
     thick = 4
     R = floor(min(Rx, Ry))
     resizeCanvas(R*2*sqrt(3)*N, R*3*N)
-    stackR = floor(R*sqrt(3)/2*0.9)
+    stackR = floor(R*sqrt(3)/2)
     textSize(R)
     strokeWeight(thin)
     L = new Layout(Layout.pointy, new Point(R, R), new Point(round(width/2), round(height/2)))
+}
+
+function regularPolygon(x, y, r, n, offset = -TAU/4) {
+    push()
+    translate(x, y)
+    beginShape()
+    for (let i = 0; i < n; i ++) {
+        let theta = i*TAU/n + offset
+        vertex(r*cos(theta), r*sin(theta))
+    }
+    endShape(CLOSE)
+    pop()
+}
+
+function drawDots(x, y, n) {
+    if (n == 0) return
+    let r = 0.1*R
+    if (n == 1) {
+        circle(x, y, r)
+        return
+    }
+
+    for (let i = 0; i < n; i ++) {
+        let theta = i*TAU/n - TAU/4
+        circle(x + 0.4*R*cos(theta), y + 0.4*R*sin(theta), r)
+    }
 }
