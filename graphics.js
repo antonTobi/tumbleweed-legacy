@@ -307,7 +307,7 @@ function draw() {
     if (stackStyle.value() == 'Circle') {
         noStroke()
         let center = L.hexToPixel(board[0][0])
-        regularPolygon(center.x, center.y, board.size * sqrt(3)*(R-2), 6, 0)
+        regularPolygon(center.x, center.y, board.size * sqrt(3)*(R-1), 6, 0)
 
         strokeWeight(thick)
         stroke(boardStrokeColor)
