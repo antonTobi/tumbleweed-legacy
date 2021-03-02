@@ -177,7 +177,7 @@ function draw() {
 
     let lastMoveHex
     let move = board.moveHistory[board.moveHistory.length-1]
-    if (move) {
+    if (lastMove.checked() && move) {
         let [q, r, c, h] = move
         lastMoveHex = board[q][r]
     }
@@ -304,30 +304,33 @@ function draw() {
     }
 
 
-    // go board style!
-    // noStroke()
-    // let center = L.hexToPixel(board[0][0])
-    // regularPolygon(center.x, center.y, board.size * sqrt(3)*R, 6, 0)
+    if (stackStyle.value() == 'Circle') {
+        noStroke()
+        let center = L.hexToPixel(board[0][0])
+        regularPolygon(center.x, center.y, board.size * sqrt(3)*(R-2), 6, 0)
 
-    // strokeWeight(thick)
-    // stroke(boardStrokeColor)
-    // for (let q = -N+1; q < N; q ++) {
-    //     for (let r = -N+1; r < N; r ++) {
-    //         let s = -q-r
-    //         if (abs(s) < N) {
-    //             let H = board[q][r]
-    //             let center = L.hexToPixel(H)
-    //             for (let d = 0; d < 6; d ++) {
-    //                 let G = H.neighbor(d)
-    //                 if (board.contains(G.q, G.r)) {
-    //                     let target = L.hexToPixel(G)
-    //                     line(center.x, center.y, target.x, target.y)
-    //                 }
-                    
-    //             }                
-    //         }
-    //     }
-    // }
+        strokeWeight(thick)
+        stroke(boardStrokeColor)
+        for (let q = -N+1; q < N; q ++) {
+            for (let r = -N+1; r < N; r ++) {
+                let s = -q-r
+                if (abs(s) < N) {
+                    let H = board[q][r]
+                    let center = L.hexToPixel(H)
+                    for (let d = 0; d < 6; d ++) {
+                        let G = H.neighbor(d)
+                        if (board.contains(G.q, G.r)) {
+                            let target = L.hexToPixel(G)
+                            line(center.x, center.y, target.x, target.y)
+                        }
+                        
+                    }                
+                }
+            }
+        }
+    }
+
+
 
     // highlight marked hex
     // if (board.contains(M.q, M.r)) {
