@@ -1,6 +1,3 @@
-
-This is a simple editor for the game of Tumbleweed: [tumbleweed.4tc.xyz](https://tumbleweed.4tc.xyz/)
-
 ### Playing
 You can place alternating legal moves by clicking on the board. To pass or undo use the buttons to the left of the board.
 
