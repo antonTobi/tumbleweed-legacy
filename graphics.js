@@ -114,13 +114,11 @@ function setup() {
     }
     
     hexColors = {
-        '1': color(150, 10, 10),
-        '-1': color(200),
+        '1': color(255, 0, 0, 127),
+        '-1': color(255, 255, 255, 127),
+        '0': color(255, 127, 127, 127),
         null: color(20)
     }
-
-    hexColors[0] = lerpColor(hexColors[1], hexColors[-1], 0.5)
-    hexColors[0] = color(60)
 
     boardColor = color('#EAD185')
     // boardColor = color(random(255), random(255), random(255))
@@ -180,19 +178,6 @@ function draw() {
     if (lastMove.checked() && move) {
         let [q, r, c, h] = move
         lastMoveHex = board[q][r]
-    }
-
-    // make temporary move
-    let temp
-    let M = L.pixelToHex(new Point(mouseX, mouseY)).round()
-    if (board.contains(M.q, M.r)) {
-        number = M.r + N
-        letter = letterCoordinates[M.q + number - 1]
-        M = board[M.q][M.r]
-        if (nextMove.checked() && board.isLegal(M)) {
-            temp = M
-            board.move(M.q, M.r)
-        }
     }
 
     // draw coordinates
@@ -266,41 +251,43 @@ function draw() {
     // draw empty hexes
 
     strokeWeight(thick)
+    fill(boardColor)
+    stroke(boardStrokeColor)
     for (let q = -N+1; q < N; q ++) {
         for (let r = -N+1; r < N; r ++) {
-            let s = -q-r
-            if (abs(s) < N) {
+            if (abs(q+r) < N) {
                 let H = board[q][r]
-                if (influence.checked()) {
-                    if (H[1] == 0 && H[-1] == 0) {
-                        fill(hexColors[null])
-                    } else {
-                        fill(hexColors[Math.sign(H[1]-H[-1])])
-                    }
-                } else {
-                    fill(boardColor)
-                }
-                if (influence.checked()) {
-                    stroke('white')
-                    strokeWeight(thin)
-                }
-                else stroke(boardStrokeColor)
-
-                // new style
-                // stroke('#804040')
-                // strokeWeight(medium*2+1)
-                // fill('#FF8080')
-
-
-                beginShape()
-                for (let corner of L.polygonCorners(H)) {
-                    vertex(corner.x, corner.y)
-                }
-                endShape(CLOSE)
-                
+                let center = L.hexToPixel(H)
+                regularPolygon(center.x, center.y, R, 6)                
             }
             
         }
+    }
+
+    
+
+
+    if (influence.checked()) {
+        for (let q = -N+1; q < N; q ++) {
+            for (let r = -N+1; r < N; r ++) {
+                if (abs(q+r) < N) {
+                    let H = board[q][r]
+                    let center = L.hexToPixel(H)
+                    if (H[1] || H[-1]) {
+                        fill(hexColors[Math.sign(H[1]-H[-1])])
+                        // stroke(hexColors[null])
+                        noStroke()
+                        // strokeWeight(thin)
+                        regularPolygon(center.x, center.y, R, 6)    
+                    } else {
+                        
+                    }
+                                
+                }
+                
+            }
+        }
+        
     }
 
 
@@ -330,7 +317,18 @@ function draw() {
         }
     }
 
-
+    // make temporary move
+    let temp
+    let M = L.pixelToHex(new Point(mouseX, mouseY)).round()
+    if (board.contains(M.q, M.r)) {
+        number = M.r + N
+        letter = letterCoordinates[M.q + number - 1]
+        M = board[M.q][M.r]
+        if (nextMove.checked() && board.isLegal(M)) {
+            temp = M
+            board.move(M.q, M.r)
+        }
+    }
 
     // highlight marked hex
     // if (board.contains(M.q, M.r)) {
@@ -445,19 +443,6 @@ function draw() {
                     text(H.height, center.x, center.y+0.05*R)
 
                     // drawDots(center.x, center.y, H.height)
-
-                    // stroke('black')
-                    // noFill()
-
-                    // noStroke()
-                    // let parity = !!(H.height % 2)
-                    // for (let i = 0; i < H.height; i ++) {
-                    //     fill(parity ? stackColors[H.color] : color(0, 127))
-                    //     circle(center.x, center.y, stackR - stackR*i/6)
-                    //     parity = !parity
-                    // }
-                    
-
 
                     // show strength
                     // if (H.color) {
