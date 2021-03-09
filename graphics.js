@@ -31,12 +31,7 @@ function setup() {
         // windowResized()
     })
 
-    createButton('Link').mousePressed(() => {
-        let s = board.toString()
-        history.pushState({}, '', '?board=' + s)
-        storeItem('board', s)
-
-    })
+    // createButton('Link').mousePressed(updateURL)
 
     defaults = {
         influence: false,
@@ -165,6 +160,7 @@ function updateScores() {
     // redScoreP.elt.innerHTML = 'Red score: ' + redScore
     // whiteScoreP.elt.innerHTML = 'White score: ' + whiteScore
     // evaluation.elt.innerHTML = 'Eval: ' + board.evaluate()
+    updateURL()
 }
 
 function draw() {
@@ -175,7 +171,7 @@ function draw() {
 
     let lastMoveHex
     let move = board.moveHistory[board.moveHistory.length-1]
-    if (lastMove.checked() && move) {
+    if (lastMove.checked() && move && board.moveNumber > 2) {
         let [q, r, c, h] = move
         lastMoveHex = board[q][r]
     }
@@ -439,8 +435,7 @@ function draw() {
                     }
                     noStroke()
 
-                    textSize(R*1.1)
-                    text(H.height, center.x, center.y+0.05*R)
+                    centered(H.height, center.x, center.y, 1.1*R)
 
                     // drawDots(center.x, center.y, H.height)
 
@@ -468,6 +463,14 @@ function draw() {
         }
     }
 
+    if (board.contains(M.q, M.r) && keyIsDown(SHIFT)) {
+        let center = L.hexToPixel(M)
+        fill(0, 200)
+        circle(center.x, center.y, 0.7*R)
+        fill(255)
+        centered(letter + number, center.x, center.y, 0.7*R)
+    }
+
     // if (lastMoveHex) {
     //     let center = L.hexToPixel(lastMoveHex)
     //     stroke('black')
@@ -481,10 +484,10 @@ function draw() {
     // for (let H of board.loudMoves()) {
     //     let center = L.hexToPixel(H)
     //     push()
-    //     stroke('black')
+    //     stroke(0, 127)
     //     strokeWeight(thick)
     //     noFill()
-    //     circle(center.x, center.y, stackR)
+    //     regularPolygon(center.x, center.y, 0.8*R, 6)
     //     pop()
     // }
 
@@ -579,4 +582,16 @@ function drawDots(x, y, n) {
         let theta = i*TAU/n - TAU/4
         circle(x + 0.4*R*cos(theta), y + 0.4*R*sin(theta), r)
     }
+}
+
+
+function centered(s, x, y, r) {
+    textSize(r)
+    text(s, x, y + 0.05*r)
+}
+
+function updateURL() {
+    let s = board.toString()
+    history.pushState({}, '', '?board=' + s)
+    storeItem('board', s)
 }
