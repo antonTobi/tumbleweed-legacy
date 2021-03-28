@@ -208,7 +208,7 @@ class Board {
 
     negamax(depth, alpha, beta) {
         if (depth == 0) {
-            return this.quiescence(4, alpha, beta)
+            return this.quiescence(3, alpha, beta)
         }
         
         let value = -Infinity
@@ -302,6 +302,10 @@ class Board {
     }
 
     recalculateStrength(H) {
+        H.strength = max(H[H.color]-1, H.height) - H[-H.color]
+        H.strength += 2*Math.sign(H.strength)
+        return
+
         H.strength = H.height + H[H.color] - 2*H[-H.color]
         H.strength += Math.sign(H.strength)
         for (let i = 0; i < 6; i ++) {
@@ -318,7 +322,7 @@ class Board {
 
         }
 
-        H.strength = max(H[H.color]-1, H.height) - H[-H.color]
+        
     }
     
 }

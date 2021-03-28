@@ -9,17 +9,20 @@ function setup() {
 
     gameplay = QuickSettings.create(0, 0, 'Gameplay options')
         .setDraggable(false)
+        .addButton('New empty board', newBoardPrompt)
+        .addButton('Make AI move', genmove)
+        .addBoolean('Autorespond', false)
         .addBoolean('Suicidal moves', false)
         .addBoolean('0-stacks', false)
-        .addBoolean('Autorespond', false)
-        .addButton('Make AI move', genmove)
-        .addButton('New board', newBoardPrompt)
+        
+        
+        
         // .addButton('Pass', () => {board.pass(); update()})
         // .addButton('Undo', () => {board.undo(); update()})
         .saveInLocalStorage('gameplay')
         .setWidth(panelWidth)
         .addHTML('Links', `<a href="https://boardgamegeek.com/boardgame/318702/tumbleweed" target="_blank">Tumbleweed on BGG</a>
-        <br><br> <a href="https://github.com/le4TC/tumbleweed" target="_blank">Editor documentation</a>`)
+        <br><br> <a href="https://github.com/le4TC/tumbleweed#playing" target="_blank">Editor documentation</a>`)
         .hideTitle('Links')
         .addHTML('Game info', '')
         .hideTitle('Game info')
@@ -85,7 +88,11 @@ function setup() {
     
 
     passButton = createButton('Pass')
-        .mousePressed(() => {board.pass(); update()})
+        .mousePressed(() => {
+            board.pass()
+            update()
+            if (gameplay.getValue('Autorespond')) setTimeout(genmove, 1)
+        })
         .size(buttonWidth, buttonHeight)
     let boardString = getURLParams().board // || getItem('board')
 
@@ -154,7 +161,7 @@ function newBoardPrompt() {
 }
 
 function genmove() {
-    board.genmove(2)
+    board.genmove(3)
     update()
 }
 
