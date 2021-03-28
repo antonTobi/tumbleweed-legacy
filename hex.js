@@ -28,7 +28,7 @@ class Hex {
     }
     playableFor(color) {
         return (this[color] > this.height &&
-            (suicides.checked() || this[color] >= this[-color]))
+            (gameplay.getValue('Suicidal moves') || this[color] >= this[-color]))
     }
     toChar() {
         if (this.color == null) return '-'

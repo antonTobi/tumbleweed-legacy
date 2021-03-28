@@ -37,7 +37,7 @@ class Board {
             null: this.hexes.length
         }
 
-        if (addNeutral && !zeroStacks.checked()) this.update(0, 0, 0, 2, false, true)        
+        if (addNeutral && !gameplay.getValue('0-stacks')) this.update(0, 0, 0, 2, false, true)        
     }
 
     contains(q, r, s = -r-q) {
@@ -47,23 +47,23 @@ class Board {
     }
 
     isLegal(H) {
-        if (zeroStacks.checked()) {
+        if (gameplay.getValue('0-stacks')) {
             if (H[this.turn] <= H.height) return false
-            if (H[this.turn] < H[-this.turn] && !suicides.checked()) return false
+            if (H[this.turn] < H[-this.turn] && !gameplay.getValue('Suicidal moves')) return false
             return true
         } else {
             let potentialHeight = H[this.turn]
             if (!this.stackCounts[this.turn]) potentialHeight = 1
             if (potentialHeight == 0) return false
             if (potentialHeight <= H.height) return false
-            if (potentialHeight < H[-this.turn] && !suicides.checked()) return false
+            if (potentialHeight < H[-this.turn] && !gameplay.getValue('Suicidal moves')) return false
             return true
         }
     }
 
     move(q, r) {
         let height = this[q][r][this.turn]
-        if (!height && !zeroStacks.checked()) height = 1
+        if (!height && !gameplay.getValue('0-stacks')) height = 1
         this.update(q, r, this.turn, height)
     }
 

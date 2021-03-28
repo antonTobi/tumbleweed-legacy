@@ -5,73 +5,88 @@ function setup() {
     textFont('Helvetica')
     ellipseMode(RADIUS)
 
-    createButton('New board').mousePressed(() => {
-        let n = Number(boardSize.value())
-        board = new Board(n)
-        updateScores()
-        storeItem('boardsize', n)
-        windowResized()
-    })
+    panelWidth = 150
 
-    boardSize = createSelect()
+    gameplay = QuickSettings.create(0, 0, 'Gameplay options')
+        .setDraggable(false)
+        .addBoolean('Suicidal moves', false)
+        .addBoolean('0-stacks', false)
+        .addBoolean('Autorespond', false)
+        .addButton('Make AI move', genmove)
+        .addButton('New board', newBoardPrompt)
+        // .addButton('Pass', () => {board.pass(); update()})
+        // .addButton('Undo', () => {board.undo(); update()})
+        .saveInLocalStorage('gameplay')
+        .setWidth(panelWidth)
+        .addHTML('Links', `<a href="https://boardgamegeek.com/boardgame/318702/tumbleweed" target="_blank">Tumbleweed on BGG</a>
+        <br><br> <a href="https://github.com/le4TC/tumbleweed" target="_blank">Editor documentation</a>`)
+        .hideTitle('Links')
+        .addHTML('Game info', '')
+        .hideTitle('Game info')
 
-    for (let i = 3; i <= 10; i ++) {
-        boardSize.option(i)
-    }
+    visualization = QuickSettings.create(windowWidth-panelWidth, 0, 'Visualization options')
+        .setDraggable(false)
+        .setGlobalChangeHandler(update)
+        .addBoolean('Influence', false)
+        .addBoolean('Lines of sight', true)
+        .addBoolean('Captures', true)
+        .addBoolean('Last move', true)
+        .addBoolean('Move preview', true)
+        .addBoolean('Coordinates', false)
+        // .addHTML('Controls', '<button type="button">Click Me!</button>')
+        // .hideTitle('Controls')
+        .saveInLocalStorage('visualization')
+        .setWidth(panelWidth)
 
+    // defaults = {
+    //     influence: false,
+    //     lines: true,
+    //     captures: true,
+    //     lastMove: true,
+    //     nextMove: true,
+    //     coordinates: true,
+    //     // autorespond: false,
+    //     zeroStacks: false,
+    //     suicides: false
+    // }
+
+    // displayNames = {
+    //     influence: 'Influence',
+    //     lines: 'Lines of sight',
+    //     captures: 'Captures',
+    //     lastMove: 'Last move',
+    //     nextMove: 'Move preview',
+    //     coordinates: 'Coordinates',
+    //     // autorespond: 'Autorespond',
+    //     zeroStacks: '0-stacks',
+    //     suicides: 'Suicides'
+    // }
+
+    // for (let option in defaults) {
+    //     let value = getItem(option)
+    //     if (value == null) value = defaults[option]
+    //     window[option] = createCheckbox(displayNames[option], value).changed(() => {
+    //         storeItem(option, window[option].checked())
+    //         if (option == 'coordinates') windowResized()
+    //     })
+    // }
+
+    // createP()
+    // createDiv('Stack style:')
+    // stackStyle = createSelect()
+    // stackStyle.option('Hex')
+    // stackStyle.option('Circle')
+
+    buttonWidth = 50
+    buttonHeight = 30
+    undoButton = createButton('Undo')
+        .mousePressed(() => {board.undo(); update()})
+        .size(buttonWidth, buttonHeight)
     
 
-    boardSize.selected(getItem('boardsize') || 8)
-
-    boardSize.changed(() => {
-        // let n = Number(boardSize.value())
-        // board = new Board(n)
-        // updateScores()
-        storeItem('boardsize', boardSize.value())
-        // windowResized()
-    })
-
-    // createButton('Link').mousePressed(updateURL)
-
-    defaults = {
-        influence: false,
-        lines: true,
-        captures: true,
-        lastMove: true,
-        nextMove: true,
-        coordinates: true,
-        // autorespond: false,
-        zeroStacks: false,
-        suicides: false
-    }
-
-    displayNames = {
-        influence: 'Influence',
-        lines: 'Lines of sight',
-        captures: 'Captures',
-        lastMove: 'Last move',
-        nextMove: 'Move preview',
-        coordinates: 'Coordinates',
-        // autorespond: 'Autorespond',
-        zeroStacks: '0-stacks',
-        suicides: 'Suicides'
-    }
-
-    for (let option in defaults) {
-        let value = getItem(option)
-        if (value == null) value = defaults[option]
-        window[option] = createCheckbox(displayNames[option], value).changed(() => {
-            storeItem(option, window[option].checked())
-            if (option == 'coordinates') windowResized()
-        })
-    }
-
-    createP()
-    createDiv('Stack style:')
-    stackStyle = createSelect()
-    stackStyle.option('Hex')
-    stackStyle.option('Circle')
-    
+    passButton = createButton('Pass')
+        .mousePressed(() => {board.pass(); update()})
+        .size(buttonWidth, buttonHeight)
     let boardString = getURLParams().board // || getItem('board')
 
     if (boardString) {
@@ -82,18 +97,9 @@ function setup() {
 
     windowResized()
 
-    moveNumber = createP()
+    // moveNumber = createP()
 
-    createButton('Pass').mousePressed(() => {
-        board.pass()
-        updateScores()
-    })
-    createButton('Undo').mousePressed(() => {
-        board.undo()
-        updateScores()
-    })
-    // createButton('AI Move').mousePressed(genmove)
-    scoreP = createP()
+    // scoreP = createP()
     // evaluation = createP()
 
     stackColors = {
@@ -130,37 +136,54 @@ function setup() {
     // })
 
     // createA('https://boardgamegeek.com/boardgame/318702/tumbleweed', 'Rules', '_blank')
-    createDiv('<a href="https://boardgamegeek.com/boardgame/318702/tumbleweed">Rules</a>')
-    createA('https://github.com/le4TC/tumbleweed', 'Help', '_blank')
 
     updateScores()
 
     // colorPickerA = createColorPicker('#ff0000')
 }
 
+function newBoardPrompt() {
+    let size = prompt('Board size (2-11)', board.size)
+    if (size) {
+        size = Number(size)
+        if (2 <= size && size <= 11) {
+            board = new Board(size)
+            update()
+        }
+    }
+}
+
 function genmove() {
     board.genmove(2)
+    update()
+}
+
+function update() {
     updateScores()
+    updateURL()
+    windowResized()
 }
 
 function updateScores() {
     let redScore = 0
     let whiteScore = 0
+    let neutralScore = 0
     for (let H of board.hexes) {
         if (H.color == 1) redScore ++
         else if (H.color == -1) whiteScore ++
+        else if (H.color == 0) neutralScore ++
         else if (H.color == null) {
             if (H[1] > H[-1]) redScore ++
-            if (H[-1] > H[1]) whiteScore ++
+            else if (H[-1] > H[1]) whiteScore ++
+            else neutralScore ++
         }
     }
-
-    moveNumber.elt.innerHTML = 'Move ' + (board.moveNumber + 1) + ' (' + ((board.turn > 0) ? 'red' : 'white') + ' to play)'
-    scoreP.elt.innerHTML = 'Score: ' + redScore + ' - ' + whiteScore
-    // redScoreP.elt.innerHTML = 'Red score: ' + redScore
-    // whiteScoreP.elt.innerHTML = 'White score: ' + whiteScore
-    // evaluation.elt.innerHTML = 'Eval: ' + board.evaluate()
-    updateURL()
+    let s = ''
+    s += 'Move ' + (board.moveNumber + 1) + ' (' + ((board.turn > 0) ? 'red' : 'white') + ' to play)'
+    s += '<br>Red score: ' + redScore
+    s += '<br>White score: ' + whiteScore
+    s += '<br>Uncontrolled cells: ' + neutralScore
+    gameplay.setValue('Game info', s)
 }
 
 function draw() {
@@ -171,13 +194,13 @@ function draw() {
 
     let lastMoveHex
     let move = board.moveHistory[board.moveHistory.length-1]
-    if (lastMove.checked() && move && board.moveNumber > 2) {
+    if (visualization.getValue('Last move') && move && board.moveNumber > 2) {
         let [q, r, c, h] = move
         lastMoveHex = board[q][r]
     }
 
     // draw coordinates
-    if (coordinates.checked()) {
+    if (visualization.getValue('Coordinates')) {
         push()
         textSize(0.8*R)
         noStroke()
@@ -263,7 +286,7 @@ function draw() {
     
 
 
-    if (influence.checked()) {
+    if (visualization.getValue('Influence')) {
         for (let q = -N+1; q < N; q ++) {
             for (let r = -N+1; r < N; r ++) {
                 if (abs(q+r) < N) {
@@ -287,31 +310,31 @@ function draw() {
     }
 
 
-    if (stackStyle.value() == 'Circle') {
-        noStroke()
-        let center = L.hexToPixel(board[0][0])
-        regularPolygon(center.x, center.y, board.size * sqrt(3)*(R-1), 6, 0)
+    // if (stackStyle.value() == 'Circle') {
+    //     noStroke()
+    //     let center = L.hexToPixel(board[0][0])
+    //     regularPolygon(center.x, center.y, board.size * sqrt(3)*(R-1), 6, 0)
 
-        strokeWeight(thick)
-        stroke(boardStrokeColor)
-        for (let q = -N+1; q < N; q ++) {
-            for (let r = -N+1; r < N; r ++) {
-                let s = -q-r
-                if (abs(s) < N) {
-                    let H = board[q][r]
-                    let center = L.hexToPixel(H)
-                    for (let d = 0; d < 6; d ++) {
-                        let G = H.neighbor(d)
-                        if (board.contains(G.q, G.r)) {
-                            let target = L.hexToPixel(G)
-                            line(center.x, center.y, target.x, target.y)
-                        }
+    //     strokeWeight(thick)
+    //     stroke(boardStrokeColor)
+    //     for (let q = -N+1; q < N; q ++) {
+    //         for (let r = -N+1; r < N; r ++) {
+    //             let s = -q-r
+    //             if (abs(s) < N) {
+    //                 let H = board[q][r]
+    //                 let center = L.hexToPixel(H)
+    //                 for (let d = 0; d < 6; d ++) {
+    //                     let G = H.neighbor(d)
+    //                     if (board.contains(G.q, G.r)) {
+    //                         let target = L.hexToPixel(G)
+    //                         line(center.x, center.y, target.x, target.y)
+    //                     }
                         
-                    }                
-                }
-            }
-        }
-    }
+    //                 }                
+    //             }
+    //         }
+    //     }
+    // }
 
     // make temporary move
     let temp
@@ -320,7 +343,7 @@ function draw() {
         number = M.r + N
         letter = letterCoordinates[M.q + number - 1]
         M = board[M.q][M.r]
-        if (nextMove.checked() && board.isLegal(M)) {
+        if (visualization.getValue('Move preview') && board.isLegal(M)) {
             temp = M
             board.move(M.q, M.r)
         }
@@ -342,7 +365,7 @@ function draw() {
 
 
     // draw lines
-    if (lines.checked() && board.moveHistory.length && temp) {
+    if (visualization.getValue('Lines of sight') && board.moveHistory.length && temp) {
         let [p, q, c, h] = board.moveHistory[board.moveHistory.length - 1]
         let M = board[p][q]
         let center = L.hexToPixel(M)
@@ -387,7 +410,7 @@ function draw() {
                         stroke('black')
                     }
                     strokeWeight(medium*2)
-                    if (captures.checked()) {
+                    if (visualization.getValue('Captures')) {
                         if (H.color) {
                             if (H.playableFor(-H.color)) {
                                 stroke(stackColors[-H.color])
@@ -407,11 +430,13 @@ function draw() {
                         }
                     }
                     
-                    if (stackStyle.value() == 'Hex') {
-                        regularPolygon(center.x, center.y, R-medium, 6)
-                    } else {
-                        circle(center.x, center.y, stackR-medium)
-                    }
+                    // if (stackStyle.value() == 'Hex') {
+                    //     regularPolygon(center.x, center.y, R-medium, 6)
+                    // } else {
+                    //     circle(center.x, center.y, stackR-medium)
+                    // }
+                    regularPolygon(center.x, center.y, R-medium, 6)
+
                     noStroke()
                     fill('black')
                     if (H.color == 1) {
@@ -450,12 +475,12 @@ function draw() {
                     if (H == temp) {
                         fill('#EAD18570')
                         noStroke()
-                        if (stackStyle.value() == 'Hex') {
-                            regularPolygon(center.x, center.y, R, 6)
-                        } else {
-                            circle(center.x, center.y, stackR)
-                        }
-                        
+                        // if (stackStyle.value() == 'Hex') {
+                        //     regularPolygon(center.x, center.y, R, 6)
+                        // } else {
+                        //     circle(center.x, center.y, stackR)
+                        // }
+                        regularPolygon(center.x, center.y, R, 6)
                     }
                     
                 }
@@ -510,10 +535,10 @@ function mousePressed() {
             H = board[H.q][H.r]
             if (board.isLegal(H)) {
                 board.move(H.q, H.r)
-                updateScores()
-                // if (autorespond.checked()) {
-                //     setTimeout(genmove, 1)
-                // }
+                update()
+                if (gameplay.getValue('Autorespond')) {
+                    setTimeout(genmove, 1)
+                }
                 
             }
         }
@@ -523,6 +548,11 @@ function mousePressed() {
 
 function keyPressed() {
     let color, height
+    if (key == ' ') {
+        visualization.toggleVisibility()
+        gameplay.toggleVisibility()
+        return
+    }
     if (keyCode == BACKSPACE) {
         color = null
         height = -1
@@ -537,16 +567,16 @@ function keyPressed() {
         H = board[H.q][H.r]
         if (height != H.height || color != H.color) {
             board.update(H.q, H.r, color, height)
-            updateScores()
+            update()
         }
         
     }
 }
 
 function windowResized() {
-    let N = board.size + coordinates.checked()
+    let N = board.size + visualization.getValue('Coordinates')
     let Rx = windowWidth/(2*sqrt(3)*N)
-    let Ry = windowHeight/(3*N)
+    let Ry = (windowHeight-buttonHeight)/(3*N)
     thin = 1
     medium = 2
     thick = 4
@@ -556,6 +586,9 @@ function windowResized() {
     textSize(R)
     strokeWeight(thin)
     L = new Layout(Layout.pointy, new Point(R, R), new Point(round(width/2), round(height/2)))
+    visualization.setPosition(windowWidth - panelWidth, 0)
+    undoButton.position(windowWidth/2-buttonWidth, windowHeight - buttonHeight)
+    passButton.position(windowWidth/2, windowHeight - buttonHeight)
 }
 
 function regularPolygon(x, y, r, n, offset = -TAU/4) {
