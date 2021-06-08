@@ -4,6 +4,7 @@ function setup() {
     textAlign(CENTER, CENTER)
     textFont('Helvetica')
     ellipseMode(RADIUS)
+    noLoop()
 
     panelWidth = 150
 
@@ -169,6 +170,8 @@ function update() {
     updateScores()
     updateURL()
     windowResized()
+    if (keyIsDown(CONTROL)) board.checkSecurePoints()
+    redraw()
 }
 
 function updateScores() {
@@ -413,7 +416,7 @@ function draw() {
                     // stroke(boardStrokeColor)
                     // stroke(lerpColor(color(stackColors[H.color]), color(0), 0.3))
                     stroke(strokeColors[H.color])
-                    if (H == lastMoveHex) {
+                    if (H == lastMoveHex && !keyIsDown(CONTROL)) {
                         stroke('black')
                     }
                     strokeWeight(medium*2)
@@ -489,11 +492,30 @@ function draw() {
                         // }
                         regularPolygon(center.x, center.y, R, 6)
                     }
+
+                    
                     
                 }
             }
         }
     }
+
+    if (keyIsDown(CONTROL)) {
+        strokeWeight(medium*2)
+        for (let q = -N+1; q < N; q ++) {
+            for (let r = -N+1; r < N; r ++) {
+                if (abs(q+r) < N) {
+                    let H = board[q][r]
+                    let center = L.hexToPixel(H)
+                    if (H.eventualOwner) {
+                        fill(strokeColors[H.eventualOwner])
+                        regularPolygon(center.x, center.y, R, 6)   
+                    }
+                }
+            }
+        }
+    }
+
 
     if (board.contains(M.q, M.r) && keyIsDown(SHIFT)) {
         let center = L.hexToPixel(M)
@@ -532,7 +554,22 @@ function draw() {
     //     noStroke()
     //     text(letter + number, 50, 50)
     // }
+}
 
+function getHexFromCoordinates(x, y) {
+    let H = L.pixelToHex(new Point(x, y)).round()
+    if (board.contains(H.q, H.r)) return board[H.q][H.r]
+    return false
+}
+
+oldM = false
+
+function mouseMoved() {
+    newM = getHexFromCoordinates(mouseX, mouseY)
+    if (newM != oldM) {
+        oldM = newM
+        redraw()
+    }
 }
 
 function mousePressed() {
@@ -554,12 +591,17 @@ function mousePressed() {
 }
 
 function keyPressed() {
-    let color, height
+    if (keyCode == CONTROL) {
+        board.checkSecurePoints()
+        redraw()
+        return
+    }
     if (key == ' ') {
         visualization.toggleVisibility()
         gameplay.toggleVisibility()
         return
     }
+    let color, height
     if (keyCode == BACKSPACE) {
         color = null
         height = -1
@@ -578,6 +620,10 @@ function keyPressed() {
         }
         
     }
+}
+
+function keyReleased() {
+    redraw()
 }
 
 function windowResized() {

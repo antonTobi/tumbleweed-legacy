@@ -46,6 +46,8 @@ Click the "AI move" button to make the AI play one move. Check "Autorespond" to 
 ### Other tips and tricks
 Hold down shift when hovering over a hex to display the coordinates of that hex.
 
+Hold down control to display secure territories (these are cells which will definitely be controlled by one player at the end of the game).
+
 Double click panel titles to collaps/expand them.
 
 Press space to hide panels completely.

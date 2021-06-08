@@ -2,6 +2,8 @@
 
 // TODO: Come up with format for saving games + variations. Possibly just use sgf?
 
+// TODO: Score function which only counts pass-secure territory (disregarding suicidal moves).
+
 class Board {
     constructor(size, addNeutral = true) {
         this.size = size
@@ -323,6 +325,47 @@ class Board {
         }
 
         
+    }
+
+    playAllNonReinforcements(color) {
+        let progress = true
+        while (progress) {
+            progress = false
+            for (let hex of this.hexes) {
+                if (hex.playableFor(color)) {
+                    progress = true
+                    this.update(hex.q, hex.r, color, hex[color], false, false)
+                }
+            }
+        }
+    }
+
+    playAllReinforcements(color) {
+        for (let hex of this.hexes) {
+            if (hex.color == color) {
+                if (hex[color] > hex.height) {
+                    this.update(hex.q, hex.r, hex.color, hex[color], false, false)
+                }
+            }
+        }
+    }
+
+    checkSecurePoints() {
+        for (let hex of this.hexes) {
+            hex.eventualOwner = 0
+        }
+        for (let color of [1, -1]) {
+            let revertPoint = this.moveHistory.length
+            this.playAllNonReinforcements(-color)
+            this.playAllReinforcements(-color)
+            this.playAllNonReinforcements(color)
+            for (let hex of this.hexes) {
+                if (hex.color == color) {
+                    hex.eventualOwner = color
+                }
+            }
+            while (this.moveHistory.length > revertPoint) this.undo()
+        }
     }
     
 }
