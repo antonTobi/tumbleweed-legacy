@@ -11,6 +11,7 @@ function setup() {
     gameplay = QuickSettings.create(0, 0, 'Gameplay options')
         .setDraggable(false)
         .addButton('New empty board', newBoardPrompt)
+        .addButton('Load random problem', loadRandomProblem)
         .addButton('Make AI move', genmove)
         .addBoolean('Autorespond', false)
         .addBoolean('Suicidal moves', false)
@@ -103,8 +104,6 @@ function setup() {
         board = new Board(getItem('boardsize') || 8)
     }
 
-    windowResized()
-
     // moveNumber = createP()
 
     // scoreP = createP()
@@ -145,7 +144,7 @@ function setup() {
 
     // createA('https://boardgamegeek.com/boardgame/318702/tumbleweed', 'Rules', '_blank')
 
-    updateScores()
+    update()
 
     // colorPickerA = createColorPicker('#ff0000')
 }
@@ -170,7 +169,7 @@ function update() {
     updateScores()
     updateURL()
     windowResized()
-    if (keyIsDown(CONTROL)) board.checkSecurePoints()
+    board.checkSecurePoints()
     redraw()
 }
 
@@ -208,6 +207,15 @@ function draw() {
         let [q, r, c, h] = move
         lastMoveHex = board[q][r]
     }
+
+    // background
+    if (board.winner) {
+        fill(strokeColors[board.winner])
+        noStroke()
+        let center =  L.hexToPixel(board[0][0])
+        regularPolygon(center.x, center.y, (board.size-0.5)*R*sqrt(3), 6, 0)
+    }
+
 
     // draw coordinates
     if (visualization.getValue('Coordinates')) {
@@ -554,6 +562,8 @@ function draw() {
     //     noStroke()
     //     text(letter + number, 50, 50)
     // }
+
+
 }
 
 function getHexFromCoordinates(x, y) {
@@ -680,4 +690,9 @@ function updateURL() {
     let s = board.toString()
     history.pushState({}, '', '?board=' + s)
     storeItem('board', s)
+}
+
+function loadRandomProblem() {
+    board = loadBoard(random(problems), true)
+    update()
 }

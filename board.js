@@ -2,8 +2,6 @@
 
 // TODO: Come up with format for saving games + variations. Possibly just use sgf?
 
-// TODO: Score function which only counts pass-secure territory (disregarding suicidal moves).
-
 class Board {
     constructor(size, addNeutral = true) {
         this.size = size
@@ -11,6 +9,7 @@ class Board {
         this.moveNumber = 0
         this.hexes = []
         this.moveHistory = []
+        this.winner = 0
         
         for (let q = -size+1; q < size; q ++) {
             this[q] = {}
@@ -354,7 +353,9 @@ class Board {
         for (let hex of this.hexes) {
             hex.eventualOwner = 0
         }
+        board.winner = 0
         for (let color of [1, -1]) {
+            let score = 0
             let revertPoint = this.moveHistory.length
             this.playAllNonReinforcements(-color)
             this.playAllReinforcements(-color)
@@ -362,7 +363,11 @@ class Board {
             for (let hex of this.hexes) {
                 if (hex.color == color) {
                     hex.eventualOwner = color
+                    score ++
                 }
+            }
+            if (2*score > board.hexes.length) {
+                board.winner = color
             }
             while (this.moveHistory.length > revertPoint) this.undo()
         }
@@ -370,8 +375,14 @@ class Board {
     
 }
 
-function loadBoard(s) {
+function loadBoard(s, transform = false) {
     let size = ceil((3 + sqrt(12*s.length-3)) / 6)
+    let t = ['q', 'r', 's']
+    let f = 1
+    if (transform) {
+        t = shuffle(t)
+        f = random([1, -1])
+    }
     let board = new Board(size, false)
     for (let i = 0; i < s.length; i ++) {
         if (s[i] == '-') continue
@@ -381,8 +392,9 @@ function loadBoard(s) {
         color /= 8  
         color -= 1
         let H = board.hexes[i]
-        board.update(H.q, H.r, color, height, false)
+        board.update(f*H[t[0]], f*H[t[1]], color, height, false)
     }
     board.moveNumber = 2
+    board.moveHistory = []
     return board
 }

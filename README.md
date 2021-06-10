@@ -5,7 +5,7 @@ You can place alternating legal moves by clicking on the board. To pass or undo 
 
 To edit the current position freely, hover with the mouse over the cell you want to change and press the corresponding key from this table:
 
-|       | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|       | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 (blank) |
 |-------|---|---|---|---|---|---|---|---|
 | red   | q | w | e | r | t | y | u | i |
 | white | a | s | d | f | g | h | j | k |
