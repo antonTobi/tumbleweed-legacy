@@ -371,7 +371,9 @@ function draw() {
             if (H.eventualOwner) {
                 fill(stackColors[H.eventualOwner])
                 stroke(strokeColors[H.eventualOwner])
-                regularPolygon(center.x, center.y, R-medium, 6)   
+                regularPolygon(center.x, center.y, R-medium, 6)
+                regularPolygon(center.x, center.y, R-medium*5, 6)
+                // regularPolygon(center.x, center.y, R-medium*9, 6) 
             }
         }
     }
