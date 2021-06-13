@@ -1,6 +1,6 @@
 // TODO: Save game history in board.toString() somehow.
 
-// TODO: Come up with format for saving games + variations. Possibly just use sgf?
+// TODO: Come up with format for saving games + variations. Possibly just use sgf or pgn?
 
 class Board {
     constructor(size, addNeutral = true) {
@@ -86,7 +86,6 @@ class Board {
         this.moveHistory.push(null)
         this.moveNumber ++
         this.turn = -this.turn
-        
     }
 
     update(Q, R, color, height, switchTurn = true, undoing = false) {
@@ -353,7 +352,7 @@ class Board {
         for (let hex of this.hexes) {
             hex.eventualOwner = 0
         }
-        board.winner = 0
+        this.winner = 0
         for (let color of [1, -1]) {
             let score = 0
             let revertPoint = this.moveHistory.length
@@ -367,12 +366,62 @@ class Board {
                 }
             }
             if (2*score > board.hexes.length) {
-                board.winner = color
+                this.winner = color
             }
             while (this.moveHistory.length > revertPoint) this.undo()
         }
     }
-    
+
+    solve() {
+        if (this.winner) return this.winner
+        let result
+        for (let H of this.hexes) {
+            if (this.isLegal(H)) {
+                this.move(H.q, H.r)
+                this.checkSecurePoints()
+                result = this.solve()
+                this.undo()
+                if (result == this.turn) return result
+            }
+        }
+        return -this.turn
+    }
+
+    solutionsCount() {
+        this.checkSecurePoints()
+        if (this.winner) return -1
+        let solutions = 0
+        for (let H of this.hexes) {
+            if (this.isLegal(H)) {
+                this.move(H.q, H.r)
+                this.checkSecurePoints()
+                if (this.solve() == -this.turn) solutions ++
+                this.undo()
+            }
+        }
+        return solutions
+    }
+}
+
+function randomBoard(size) {
+    let b = new Board(size, false)
+    for (let H of b.hexes) {
+        if (random(2) < 1) {
+            let color = random([1, -1])
+            let height = random([1, 2, 3, 4, 5, 6])
+            b.update(H.q, H.r, color, height, false)
+        }
+    }
+    return b
+}
+
+function randomProblem(size) {
+    let board
+    do {
+        board = randomBoard(size)
+    } while (board.solutionsCount() != 1)
+    board.moveHistory = []
+    return board
 }
 
 function loadBoard(s, transform = false) {

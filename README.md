@@ -38,15 +38,28 @@ Note that suicides are never good moves, so I recommend having them disabled nor
 
 0-stacks are *not* allowed in the official rules. Playing with them is equivalent to the variant *Rumbleweed*. One advantage of this variant is that you can start playing from an empty board, so if you create a new board while 0-stacks are enabled the editor will not automatically place a neutral 2-stack.
 
-The score display counts stacks + controlled empty cells for each side.
+## Score
+
+In the purest version of Tumbleweed, each players score is simply the number of stacks they have on the board. To allow earlier scoring, without changing the outcome, we usually add the rule that an empty cell counts as a point for the player who has more lines of sight on it.
+
+This editor adds another layer on top of this: if *any* sequence of legal moves will lead to a certain player *eventually* controlling a cell once the board is filled up, then we count that cell as a point for that player, regardless of who controls it at the moment.
+
+To display the current "certain" cells, hold down control.
+
+Once one player has enough certain points to guarantee victory, a red/light gray outline is shown around the board to indicate the winner.
 
 ### AI
 Click the "AI move" button to make the AI play one move. Check "Autorespond" to make the AI respond to all your moves. Note that the AI is very weak at the moment!
 
+### Problems
+If you click "Load random problem" you will get a random problem from a small set of handmade problems (more problems hopefully coming in the future).
+
+The problems are all on a small board (size 3) and it's always red to play and win. The first move is unique (disregarding suicidal moves as usual).
+
+The weak AI plays pretty well in these simplified positions, so if you manage to win against the AI you have almost surely solved the problem! Once you get the red outline around the board you can consider the problem solved and load a new one.
+
 ### Other tips and tricks
 Hold down shift when hovering over a hex to display the coordinates of that hex.
-
-Hold down control to display secure territories (these are cells which will definitely be controlled by one player at the end of the game).
 
 Double click panel titles to collaps/expand them.
 
