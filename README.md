@@ -39,14 +39,13 @@ Note that suicides are never good moves, so I recommend having them disabled nor
 0-stacks are *not* allowed in the official rules. Playing with them is equivalent to the variant *Rumbleweed*. One advantage of this variant is that you can start playing from an empty board, so if you create a new board while 0-stacks are enabled the editor will not automatically place a neutral 2-stack.
 
 ## Score
-
 In the purest version of Tumbleweed, each players score is simply the number of stacks they have on the board. To allow earlier scoring, without changing the outcome, we usually add the rule that an empty cell counts as a point for the player who has more lines of sight on it.
 
 This editor adds another layer on top of this: if *any* sequence of legal moves will lead to a certain player *eventually* controlling a cell once the board is filled up, then we count that cell as a point for that player, regardless of who controls it at the moment.
 
 To display the current "certain" cells, hold down control.
 
-Once one player has enough certain points to guarantee victory, a red/light gray outline is shown around the board to indicate the winner.
+Once one player has enough certain points to guarantee victory, a red/light gray outline is shown around the board to indicate the winner. (This can be disabled under the visualization options)
 
 ### AI
 Click the "AI move" button to make the AI play one move. Check "Autorespond" to make the AI respond to all your moves. Note that the AI is very weak at the moment!
