@@ -401,6 +401,15 @@ class Board {
         }
         return solutions
     }
+
+    invertColors() {
+        for (let H of this.hexes) {
+            if (H.color !== null) {
+                this.update(H.q, H.r, -H.color, H.height, false)
+            }
+        }
+        this.pass()
+    }
 }
 
 function randomBoard(size) {

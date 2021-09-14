@@ -446,6 +446,13 @@ function mousePressed() {
 
 function keyPressed() {
     redraw()
+    if (keyIsDown(CONTROL)) {
+        if (key == 'i') {
+            board.invertColors()
+            update()
+            return
+        }
+    }
     if (key == ' ') {
         visualization.toggleVisibility()
         gameplay.toggleVisibility()

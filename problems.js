@@ -15,4 +15,5 @@ c--sc---s-e--ses-s-
 rr-dr----d----rr-dr
 ssetseteeessssettse
 d--sd-d-sdd--s---s-
+bcs-d-ss-e--sudtc--
 `.trim().split('\n')

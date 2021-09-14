@@ -64,6 +64,8 @@ Double click panel titles to collaps/expand them.
 
 Press space to hide panels completely.
 
+Use Ctrl + I to invert the color of all stacks.
+
 ### Contact
 If you have questions/bug reports/feature suggestions, let me know in the #computer-implementations channel of the [Tumbleweed discord](https://discord.gg/PxHMNNCsa4)!
 
