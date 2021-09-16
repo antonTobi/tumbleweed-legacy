@@ -16,4 +16,7 @@ rr-dr----d----rr-dr
 ssetseteeessssettse
 d--sd-d-sdd--s---s-
 bcs-d-ss-e--sudtc--
+bb---cs--d----s---r
+-sr-se--se--se----r
+sccrbs--ses--ses-sc
 `.trim().split('\n')

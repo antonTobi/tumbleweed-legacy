@@ -289,7 +289,7 @@ class Board {
             let legalMoves = this.legalMoves()
             if (legalMoves.length) {
                 console.log("Making random move")
-                H = random(this.legalMoves())
+                H = random(legalMoves)
             } else {
                 console.log("No legal moves, passing")
                 this.pass()
@@ -299,6 +299,18 @@ class Board {
         
         this.move(H.q, H.r)
         
+    }
+
+    makeRandomMoves(n = 1) {
+        for (let i = 0; i < n; i ++) {
+            let legalMoves = this.legalMoves()
+            if (legalMoves.length) {
+                let H = random(legalMoves)
+                this.move(H.q, H.r)
+            } else {
+                this.pass()
+            }
+        }
     }
 
     recalculateStrength(H) {
@@ -365,7 +377,7 @@ class Board {
                     score ++
                 }
             }
-            if (2*score > board.hexes.length) {
+            if (2*score > this.hexes.length) {
                 this.winner = color
             }
             while (this.moveHistory.length > revertPoint) this.undo()
@@ -455,4 +467,40 @@ function loadBoard(s, transform = false) {
     board.moveNumber = 2
     board.moveHistory = []
     return board
+}
+
+function estimateComplexity(boardSize, numberOfGames) {
+    let gameLengths = []
+    let branchingFactors = []
+    let redWins = 0
+
+    for (let i = 0; i < numberOfGames; i ++) {
+        let b = new Board(boardSize)
+        while (!b.winner) {
+            let legalMoves = b.legalMoves()
+            if (b.moveNumber > 1) {
+                branchingFactors.push(legalMoves.length)
+            }
+            if (legalMoves.length) {
+                let H = random(legalMoves)
+                b.move(H.q, H.r)
+                b.checkSecurePoints()
+            } else {
+                b.pass()
+            }
+        }
+        if (b.winner == 1) redWins ++
+        gameLengths.push(b.moveNumber)
+    }
+    console.log("Average branching: " + average(branchingFactors).toFixed(3))
+    console.log("Average game length: " + average(gameLengths).toFixed(3))
+    console.log("Red winrate: " + (redWins/numberOfGames).toFixed(3))
+}
+
+function sum(list) {
+    return list.reduce((a, b) => a+b)
+}
+
+function average(list) {
+    return sum(list)/list.length
 }
