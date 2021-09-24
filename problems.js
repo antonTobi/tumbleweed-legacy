@@ -19,4 +19,11 @@ bcs-d-ss-e--sudtc--
 bb---cs--d----s---r
 -sr-se--se--se----r
 sccrbs--ses--ses-sc
+c-b--s-r-ts-ccd----
+rc-rr----d----rc-rr
+-r-e--rte--r-e--te-
+rdsr-ds--dd-r-ds-ds
+-bbrr----c-bs-rb-r-
+s-s-ddssd-ds-dd-s-s
+c-rse-rr-e-ss-e-s-c
 `.trim().split('\n')
