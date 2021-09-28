@@ -26,4 +26,11 @@ rdsr-ds--dd-r-ds-ds
 -bbrr----c-bs-rb-r-
 s-s-ddssd-ds-dd-s-s
 c-rse-rr-e-ss-e-s-c
+t---tt-d---d--dttd-
+d--d--t--d-t---dtt-
+-t--d--t---t-d-dd-t
+--t-td-t-t-dd--d---
+-rrs-r---cb---bb---
+s--c--s--t---cdbc--
+r--c----cs-r--d--b-
 `.trim().split('\n')

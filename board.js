@@ -442,13 +442,17 @@ class Board {
 
 function randomBoard(size) {
     let b = new Board(size, false);
-    // let hexes = shuffle(b.hexes)
-    // for (let color of [1, -1]) {
-    //     for (let height of [1, 2, 3, 4, 5]) {
-    //         let H = hexes.pop()
-    //         b.update(H.q, H.r, color, height, false)
-    //     }
-    // }
+    let hexes = shuffle(b.hexes);
+    let redHeights = [2, 2, 2, 2, 2]
+    let whiteHeights = [2, 2, 2, 2, 2]
+    for (let height of redHeights) {
+        let H = hexes.pop();
+        b.update(H.q, H.r, 1, height, false);
+    }
+    for (let height of whiteHeights) {
+        let H = hexes.pop();
+        b.update(H.q, H.r, -1, height, false);
+    }
 
     // for (let H of b.hexes) {
     //     if (random(2) < 1) {
@@ -458,35 +462,34 @@ function randomBoard(size) {
     //     }
     // }
 
-    for (let H of b.hexes) {
-        let height = random([0, 0, 0, 1, 2, 3, 4, 5, 6, 7]);
-        let color = 1
-        if (height < 2) {
-            height = 0
-            color = 0
-        } else if (height > 4) {
-            height = 7
-            color = -1
-        }
-        b.update(H.q, H.r, color, height, false);
-    }
+    // for (let H of b.hexes) {
+    //     let height = random([0, 0, 0, 1, 2, 3, 4, 5, 6, 7]);
+    //     let color = 1
+    //     if (height < 2) {
+    //         height = 0
+    //         color = 0
+    //     } else if (height > 4) {
+    //         height = 7
+    //         color = -1
+    //     }
+    //     b.update(H.q, H.r, color, height, false);
+    // }
     return b;
 }
 
 function randomBoardFromTemplate(s) {
-    let b = loadBoard(s)
+    let b = loadBoard(s);
     for (let H of b.hexes) {
         if (H.height == -1 && random(3) < 1) {
-            let color = 1
+            let color = 1;
             let height = random([1, 2, 3]);
             b.update(H.q, H.r, color, height, false);
         }
     }
-    return b
-
+    return b;
 }
 
-const template = "h---xh---xxh---xxxhh--xxxxh-xxxxhxxxx"
+const template = 'h---xh---xxh---xxxhh--xxxxh-xxxxhxxxx';
 function randomProblem(size = 3) {
     let board;
     do {
