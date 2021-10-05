@@ -51,9 +51,7 @@ Once one player has enough certain points to guarantee victory, a red/light gray
 Click the "AI move" button to make the AI play one move. Check "Autorespond" to make the AI respond to all your moves. Note that the AI is very weak at the moment!
 
 ### Problems
-If you click "Load random problem" you will get a random problem from a small set of handmade problems (more problems hopefully coming in the future).
-
-The problems are all on a small board (size 3) and it's always red to play and win. The first move is unique (disregarding suicidal moves as usual).
+You can load a random problem from a small collection of size-3 problems (thanks to Test654 and TQ for contributing to the problemset!). Loaded problems are randomly rotated and mirrored, but it's always red to play and win. The first move is unique (disregarding suicidal and symmetrical moves). If you find a faulty problem let me know!
 
 The weak AI plays pretty well in these simplified positions, so if you manage to win against the AI you have almost surely solved the problem! Once you get the red outline around the board you can consider the problem solved and load a new one.
 

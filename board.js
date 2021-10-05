@@ -443,8 +443,8 @@ class Board {
 function randomBoard(size) {
     let b = new Board(size, false);
     let hexes = shuffle(b.hexes);
-    let redHeights = [2, 2, 2, 2, 2]
-    let whiteHeights = [2, 2, 2, 2, 2]
+    let redHeights = [1, 2, 2, 3, 3]
+    let whiteHeights = [1, 2, 2, 3, 3]
     for (let height of redHeights) {
         let H = hexes.pop();
         b.update(H.q, H.r, 1, height, false);
