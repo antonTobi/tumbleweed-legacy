@@ -6,55 +6,56 @@ class Point {
     }
 }
 class Hex {
-    constructor(q, r, s = -q-r) {
+    constructor(q, r, s = -q - r) {
         this.q = q;
         this.r = r;
         this.s = s;
-        if (Math.round(q + r + s) !== 0)
-            throw "q + r + s must be 0";
-        
-        this.color = null
-        this.height = -1
-        this[1] = 0
-        this[-1] = 0
+        if (Math.round(q + r + s) !== 0) throw 'q + r + s must be 0';
 
+        this.color = null;
+        this.height = -1;
+        this[1] = 0;
+        this[-1] = 0;
 
         // stack or null
-        this.seen = new Array(6).fill(null)
+        this.seen = new Array(6).fill(null);
 
         // number of empty cells in each direction
-        this.distances = new Array(6)
-        this.strength = 0
+        this.distances = new Array(6);
+        this.strength = 0;
     }
-    playableFor(color) {
-        return (this[color] > this.height &&
-            (gameplay.getValue('Suicidal moves') || this[color] >= this[-color]))
+    playableFor(color, allowSuicidal = gameplay.getValue('Suicidal moves')) {
+        return (
+            this[color] > this.height &&
+            (allowSuicidal || this[color] >= this[-color])
+        );
     }
     toChar() {
-        if (this.color == null) return '-'
-        return 'abcdefghijklmnopqrstuvwxyz'[this.height+(this.color+1)*8]
+        if (this.color == null) return '-';
+        return 'abcdefghijklmnopqrstuvwxyz'[this.height + (this.color + 1) * 8];
     }
-    heuristic(turn) {  
+    heuristic(turn) {
         // reinforcements are good if capture is threatened, otherwise pretty bad
         if (this.color == turn) {
-            if (this.height <= this[-turn] && this[turn] <= this[-turn]) return 90
-            else return 30
+            if (this.height <= this[-turn] && this[turn] <= this[-turn])
+                return 90;
+            else return 30;
         }
-  
+
         // captures are always pretty good, but slightly less if they can't be reinforced directly
         // this might be wack though, because there are other ways to reinforce
         if (this.color == -turn) {
-            if (this[1] == this[-1]) return 100 + 2*this[1] + this.height
-            else return 80 + 2*this[1]
+            if (this[1] == this[-1]) return 100 + 2 * this[1] + this.height;
+            else return 80 + 2 * this[1];
         }
-  
+
         // claiming the neutral stack is better than playing in empty space, but worse than capturing opponent
         if (this.height) {
-            if (this[1] == this[-1]) return 85
-            else return 60 - 10*this[turn]
+            if (this[1] == this[-1]) return 85;
+            else return 60 - 10 * this[turn];
         }
-  
-        return 72 - 2 * (this[turn] - this[-turn])**2
+
+        return 72 - 2 * (this[turn] - this[-turn]) ** 2;
     }
     add(b) {
         return new Hex(this.q + b.q, this.r + b.r, this.s + b.s);
@@ -95,22 +96,24 @@ class Hex {
         var s_diff = Math.abs(si - this.s);
         if (q_diff > r_diff && q_diff > s_diff) {
             qi = -ri - si;
-        }
-        else if (r_diff > s_diff) {
+        } else if (r_diff > s_diff) {
             ri = -qi - si;
-        }
-        else {
+        } else {
             si = -qi - ri;
         }
         return new Hex(qi, ri, si);
     }
     lerp(b, t) {
-        return new Hex(this.q * (1.0 - t) + b.q * t, this.r * (1.0 - t) + b.r * t, this.s * (1.0 - t) + b.s * t);
+        return new Hex(
+            this.q * (1.0 - t) + b.q * t,
+            this.r * (1.0 - t) + b.r * t,
+            this.s * (1.0 - t) + b.s * t
+        );
     }
     linedraw(b) {
         var N = this.distance(b);
-        var a_nudge = new Hex(this.q + 1e-06, this.r + 1e-06, this.s - 2e-06);
-        var b_nudge = new Hex(b.q + 1e-06, b.r + 1e-06, b.s - 2e-06);
+        var a_nudge = new Hex(this.q + 1e-6, this.r + 1e-6, this.s - 2e-6);
+        var b_nudge = new Hex(b.q + 1e-6, b.r + 1e-6, b.s - 2e-6);
         var results = [];
         var step = 1.0 / Math.max(N, 1);
         for (var i = 0; i <= N; i++) {
@@ -119,8 +122,22 @@ class Hex {
         return results;
     }
 }
-Hex.directions = [new Hex(1, 0, -1), new Hex(1, -1, 0), new Hex(0, -1, 1), new Hex(-1, 0, 1), new Hex(-1, 1, 0), new Hex(0, 1, -1)];
-Hex.diagonals = [new Hex(2, -1, -1), new Hex(1, -2, 1), new Hex(-1, -1, 2), new Hex(-2, 1, 1), new Hex(-1, 2, -1), new Hex(1, 1, -2)];
+Hex.directions = [
+    new Hex(1, 0, -1),
+    new Hex(1, -1, 0),
+    new Hex(0, -1, 1),
+    new Hex(-1, 0, 1),
+    new Hex(-1, 1, 0),
+    new Hex(0, 1, -1),
+];
+Hex.diagonals = [
+    new Hex(2, -1, -1),
+    new Hex(1, -2, 1),
+    new Hex(-1, -1, 2),
+    new Hex(-2, 1, 1),
+    new Hex(-1, 2, -1),
+    new Hex(1, 1, -2),
+];
 class OffsetCoord {
     constructor(col, row) {
         this.col = col;
@@ -130,7 +147,7 @@ class OffsetCoord {
         var col = h.q;
         var row = h.r + (h.q + offset * (h.q & 1)) / 2;
         if (offset !== OffsetCoord.EVEN && offset !== OffsetCoord.ODD) {
-            throw "offset must be EVEN (+1) or ODD (-1)";
+            throw 'offset must be EVEN (+1) or ODD (-1)';
         }
         return new OffsetCoord(col, row);
     }
@@ -139,7 +156,7 @@ class OffsetCoord {
         var r = h.row - (h.col + offset * (h.col & 1)) / 2;
         var s = -q - r;
         if (offset !== OffsetCoord.EVEN && offset !== OffsetCoord.ODD) {
-            throw "offset must be EVEN (+1) or ODD (-1)";
+            throw 'offset must be EVEN (+1) or ODD (-1)';
         }
         return new Hex(q, r, s);
     }
@@ -147,7 +164,7 @@ class OffsetCoord {
         var col = h.q + (h.r + offset * (h.r & 1)) / 2;
         var row = h.r;
         if (offset !== OffsetCoord.EVEN && offset !== OffsetCoord.ODD) {
-            throw "offset must be EVEN (+1) or ODD (-1)";
+            throw 'offset must be EVEN (+1) or ODD (-1)';
         }
         return new OffsetCoord(col, row);
     }
@@ -156,7 +173,7 @@ class OffsetCoord {
         var r = h.row;
         var s = -q - r;
         if (offset !== OffsetCoord.EVEN && offset !== OffsetCoord.ODD) {
-            throw "offset must be EVEN (+1) or ODD (-1)";
+            throw 'offset must be EVEN (+1) or ODD (-1)';
         }
         return new Hex(q, r, s);
     }
@@ -222,7 +239,10 @@ class Layout {
         var M = this.orientation;
         var size = this.size;
         var origin = this.origin;
-        var pt = new Point((p.x - origin.x) / size.x, (p.y - origin.y) / size.y);
+        var pt = new Point(
+            (p.x - origin.x) / size.x,
+            (p.y - origin.y) / size.y
+        );
         var q = M.b0 * pt.x + M.b1 * pt.y;
         var r = M.b2 * pt.x + M.b3 * pt.y;
         return new Hex(q, r, -q - r);
@@ -230,7 +250,7 @@ class Layout {
     hexCornerOffset(corner) {
         var M = this.orientation;
         var size = this.size;
-        var angle = 2.0 * Math.PI * (M.start_angle - corner) / 6.0;
+        var angle = (2.0 * Math.PI * (M.start_angle - corner)) / 6.0;
         return new Point(size.x * Math.cos(angle), size.y * Math.sin(angle));
     }
     polygonCorners(h) {
@@ -243,5 +263,25 @@ class Layout {
         return corners;
     }
 }
-Layout.pointy = new Orientation(Math.sqrt(3.0), Math.sqrt(3.0) / 2.0, 0.0, 3.0 / 2.0, Math.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0, 0.5);
-Layout.flat = new Orientation(3.0 / 2.0, 0.0, Math.sqrt(3.0) / 2.0, Math.sqrt(3.0), 2.0 / 3.0, 0.0, -1.0 / 3.0, Math.sqrt(3.0) / 3.0, 0.0);
+Layout.pointy = new Orientation(
+    Math.sqrt(3.0),
+    Math.sqrt(3.0) / 2.0,
+    0.0,
+    3.0 / 2.0,
+    Math.sqrt(3.0) / 3.0,
+    -1.0 / 3.0,
+    0.0,
+    2.0 / 3.0,
+    0.5
+);
+Layout.flat = new Orientation(
+    3.0 / 2.0,
+    0.0,
+    Math.sqrt(3.0) / 2.0,
+    Math.sqrt(3.0),
+    2.0 / 3.0,
+    0.0,
+    -1.0 / 3.0,
+    Math.sqrt(3.0) / 3.0,
+    0.0
+);

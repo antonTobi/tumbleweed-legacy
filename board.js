@@ -348,7 +348,7 @@ class Board {
         while (progress) {
             progress = false;
             for (let hex of this.hexes) {
-                if (hex.playableFor(color)) {
+                if (hex.playableFor(color, false)) {
                     progress = true;
                     this.update(hex.q, hex.r, color, hex[color], false, false);
                 }

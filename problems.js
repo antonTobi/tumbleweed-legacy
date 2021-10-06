@@ -49,4 +49,8 @@ bbbr-rc--dt----r---
 bb-t-bbsrd-s----s--
 dcc-surr-f-s--sd-sd
 s---s-bdd-tct---b-b
+-s--ds---cs-s-ds---
+--ddttt------d-e---
+----sc-s-----ccssc-
+duc----tt---e-b-td-
 `.trim().split('\n')
