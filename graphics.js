@@ -577,12 +577,12 @@ function loadRandomProblem() {
 
 function makeRandomPie() {
     do {
-        board = new Board(max(board.size, 4))
+        board = new Board(max(board.size, 6))
         let R = random(board.hexes.filter(H => H.height == -1))
         board.move(R.q, R.r)
         let W = random(board.hexes.filter(H => H.height == -1 && H[1] == 0))
         board.move(W.q, W.r)
-    } while (updateScores() >= -board.size)
+    } while (updateScores() >= -(2*board.size-6))
 
     update()
 }
