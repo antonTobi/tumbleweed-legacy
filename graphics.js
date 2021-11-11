@@ -555,21 +555,34 @@ function loadRandomProblem() {
     update();
 }
 
+// function makeRandomPie() {
+//     do {
+//         board = new Board(max(board.size, 4))
+//         let redQ = 0
+//         let redR = -floor(random(1, board.size))
+//         let redS = -redQ-redR
+//         board.move(redQ, redR)
+//         let whiteQ, whiteR, whiteS
+//         do {
+//             whiteQ = -floor(random(1, board.size-1))
+//             whiteR = floor(random(-board.size + 2 - whiteQ, board.size-1))
+//             whiteS = -whiteQ-whiteR
+//         } while (whiteR == redR || whiteS == redS || whiteR == 0 || whiteS == 0)
+//         board.move(whiteQ, whiteR)
+//     } while (updateScores() >= 0)
+
+//     update()
+// }
+
+
 function makeRandomPie() {
     do {
         board = new Board(max(board.size, 4))
-        let redQ = 0
-        let redR = -floor(random(1, board.size))
-        let redS = -redQ-redR
-        board.move(redQ, redR)
-        let whiteQ, whiteR, whiteS
-        do {
-            whiteQ = -floor(random(1, board.size-1))
-            whiteR = floor(random(-board.size + 2 - whiteQ, board.size-1))
-            whiteS = -whiteQ-whiteR
-        } while (whiteR == redR || whiteS == redS || whiteR == 0 || whiteS == 0)
-        board.move(whiteQ, whiteR)
-    } while (updateScores() >= 0)
+        let R = random(board.hexes.filter(H => H.height == -1))
+        board.move(R.q, R.r)
+        let W = random(board.hexes.filter(H => H.height == -1 && H[1] == 0))
+        board.move(W.q, W.r)
+    } while (updateScores() >= -board.size)
 
     update()
 }
