@@ -11,6 +11,7 @@ function setup() {
     gameplay = QuickSettings.create(0, 0, 'Gameplay options')
         .setDraggable(false)
         .addButton('New empty board', newBoardPrompt)
+        .addButton('Make random pie', makeRandomPie)
         // .addButton('Make random problem', () => {board = randomProblem(2); update()})
         .addButton('Load random problem', loadRandomProblem)
         .addButton('Make AI move', genmove)
@@ -64,7 +65,8 @@ function setup() {
     if (boardString) {
         board = loadBoard(boardString);
     } else {
-        board = new Board(getItem('boardsize') || 8);
+        // board = new Board(6)
+        board = new Board(getItem('boardsize') || 6);
     }
 
     stackColors = {
@@ -97,6 +99,7 @@ function newBoardPrompt() {
     if (size) {
         size = Number(size);
         if (2 <= size && size <= 11) {
+            storeItem('boardsize', size)
             board = new Board(size);
             update();
         }
@@ -150,6 +153,7 @@ function updateScores() {
     White score: ${score[-1]}<br>
     Uncontrolled cells: ${score[0]}`
     );
+    return score[1]-score[-1]
 }
 
 function draw() {
@@ -399,6 +403,7 @@ function draw() {
         circle(center.x, center.y, 0.7 * R);
         fill(255);
         centered(letter + number, center.x, center.y, 0.7 * R);
+        // centered(M.q + ", " + M.r, center.x, center.y, 0.5 * R);
     }
 
     // show loud moves
@@ -548,4 +553,23 @@ function updateURL() {
 function loadRandomProblem() {
     board = loadBoard(random(problems), true);
     update();
+}
+
+function makeRandomPie() {
+    do {
+        board = new Board(max(board.size, 4))
+        let redQ = 0
+        let redR = -floor(random(1, board.size))
+        let redS = -redQ-redR
+        board.move(redQ, redR)
+        let whiteQ, whiteR, whiteS
+        do {
+            whiteQ = -floor(random(1, board.size-1))
+            whiteR = floor(random(-board.size + 2 - whiteQ, board.size-1))
+            whiteS = -whiteQ-whiteR
+        } while (whiteR == redR || whiteS == redS || whiteR == 0 || whiteS == 0)
+        board.move(whiteQ, whiteR)
+    } while (updateScores() >= 0)
+
+    update()
 }

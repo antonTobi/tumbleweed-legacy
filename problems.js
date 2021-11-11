@@ -53,4 +53,9 @@ s---s-bdd-tct---b-b
 --ddttt------d-e---
 ----sc-s-----ccssc-
 duc----tt---e-b-td-
+-----ds--tdsc--er-t
+sdt--ect-----e-sc-s
+-tccd--t-t-ct--rdd-
+--s---s-cttc-d-cr-c
+cs--c----r--b----dr
 `.trim().split('\n')
