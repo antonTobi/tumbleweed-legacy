@@ -546,7 +546,7 @@ function centered(s, x, y, r) {
 
 function updateURL() {
     let s = board.toString();
-    history.pushState({}, '', '?board=' + s);
+    history.replaceState({}, '', '?board=' + s);
     storeItem('board', s);
 }
 
