@@ -35,7 +35,7 @@ class Board {
             1: 0,
             0: 0,
             '-1': 0,
-            null: this.hexes.length,
+            null: this.hexes.length
         };
 
         if (addNeutral && !gameplay.getValue('0-stacks'))
@@ -49,10 +49,7 @@ class Board {
     isLegal(H) {
         if (gameplay.getValue('0-stacks')) {
             if (H[this.turn] <= H.height) return false;
-            if (
-                H[this.turn] < H[-this.turn] &&
-                !gameplay.getValue('Suicidal moves')
-            )
+            if (H[this.turn] < H[-this.turn] && !gameplay.getValue('Suicidal moves'))
                 return false;
             return true;
         } else {
@@ -270,9 +267,7 @@ class Board {
     loudMoves() {
         let moves = new Set(
             this.hexes.filter(
-                H =>
-                    (H.color == -this.turn || H.color == 0) &&
-                    H.playableFor(this.turn)
+                H => (H.color == -this.turn || H.color == 0) && H.playableFor(this.turn)
             )
         );
         for (let H of this.hexes.filter(
@@ -360,14 +355,7 @@ class Board {
         for (let hex of this.hexes) {
             if (hex.color == color) {
                 if (hex[color] > hex.height) {
-                    this.update(
-                        hex.q,
-                        hex.r,
-                        hex.color,
-                        hex[color],
-                        false,
-                        false
-                    );
+                    this.update(hex.q, hex.r, hex.color, hex[color], false, false);
                 }
             }
         }
@@ -438,13 +426,71 @@ class Board {
         }
         this.pass();
     }
+
+    captureAvailable() {
+        for (let H of this.legalMoves()) {
+            if (H.color == -this.turn) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    isCaptureIn2Puzzle() {
+        // add this line back in if input might contain captures
+        // if (this.captureAvailable()) return false;
+        let solutions = 0;
+        for (let H of this.legalMoves()) {
+            this.move(H.q, H.r);
+            let isSolution = true;
+            for (let H of this.legalMoves()) {
+                this.move(H.q, H.r);
+                if (!this.captureAvailable()) {
+                    this.undo();
+                    isSolution = false;
+                    break;
+                }
+                this.undo();
+            }
+            if (isSolution) solutions++;
+            if (solutions > 1) return false;
+            this.undo();
+        }
+        return (solutions == 1);
+    }
+}
+
+function randomCaptureIn2Puzzle(size) {
+    let b;
+    do {
+        b = randomStableBoard(size);
+    } while (!b.isCaptureIn2Puzzle());
+    b.moveHistory = [];
+    return b;
+}
+
+function randomStableBoard(size) {
+    let b = new Board(size, false);
+    for (let H of b.hexes) {
+        if (random() > 0.85) {
+            b.update(H.q, H.r, random([1, -1]), 1, false);
+        }
+    }
+    for (let H of b.hexes) {
+        if (H.color) {
+            if (H[-H.color] > max(H.height, H[H.color] - 1)) {
+                H.height = H[-H.color];
+            }
+        }
+    }
+    return b;
 }
 
 function randomBoard(size) {
     let b = new Board(size, false);
     let hexes = shuffle(b.hexes);
-    let redHeights = [1, 2, 2, 3, 3]
-    let whiteHeights = [1, 2, 2, 3, 3]
+    let redHeights = [1, 2, 2, 3, 3];
+    let whiteHeights = [1, 2, 2, 3, 3];
     for (let height of redHeights) {
         let H = hexes.pop();
         b.update(H.q, H.r, 1, height, false);

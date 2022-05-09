@@ -14,6 +14,7 @@ function setup() {
         .addButton('Make random pie', makeRandomPie)
         // .addButton('Make random problem', () => {board = randomProblem(2); update()})
         .addButton('Load random problem', loadRandomProblem)
+        .addButton('Make capture problem', generateCaptureProblem)
         .addButton('Make AI move', genmove)
         .addBoolean('Autorespond', false)
         .addBoolean('Suicidal moves', false)
@@ -552,6 +553,11 @@ function updateURL() {
 
 function loadRandomProblem() {
     board = loadBoard(random(problems), true);
+    update();
+}
+
+function generateCaptureProblem() {
+    board = randomCaptureIn2Puzzle(board.size);
     update();
 }
 

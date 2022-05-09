@@ -14,10 +14,14 @@ class Hex {
 
         this.color = null;
         this.height = -1;
+
+        // red lines on this hex
         this[1] = 0;
+
+        // white lines on this hex
         this[-1] = 0;
 
-        // stack or null
+        // first stack seen in each direction
         this.seen = new Array(6).fill(null);
 
         // number of empty cells in each direction

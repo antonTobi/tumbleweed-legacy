@@ -58,4 +58,7 @@ sdt--ect-----e-sc-s
 -tccd--t-t-ct--rdd-
 --s---s-cttc-d-cr-c
 cs--c----r--b----dr
+-r--r-rbbcr---dr-bs
+-r--r-r-bct---c--b-
+-r--r-r-d-t-c-d--b-
 `.trim().split('\n')
