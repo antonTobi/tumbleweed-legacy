@@ -447,17 +447,13 @@ function mouseMoved() {
     }
 }
 
-function mouseClicked() {
-    return false;
-}
-
 function clickHandler() {
     if (mouseButton == LEFT) {
         let H = L.pixelToHex(new Point(mouseX, mouseY)).round();
         if (board.contains(H.q, H.r, H.s)) {
             if (mode == "capture" && board.moveNumber) {
                 undo();
-                return false;
+                return;
             }
             H = board[H.q][H.r];
             if (board.isLegal(H)) {
@@ -471,7 +467,7 @@ function clickHandler() {
                                 board.undo();
                             } else {
                                 update();
-                                return false;
+                                return;
                             }
                         }
                         generateCaptureProblem();
@@ -483,7 +479,7 @@ function clickHandler() {
             }
         }
     }
-    return false;
+    return;
 }
 
 function keyPressed() {
