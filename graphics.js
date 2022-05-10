@@ -3,7 +3,8 @@ const letterCoordinates = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 mode = 'default';
 
 function setup() {
-    createCanvas(100, 100).mouseClicked(clickHandler);
+    canvas = createCanvas(100, 100)
+    canvas.mouseClicked(clickHandler);
     textAlign(CENTER, CENTER);
     textFont('Helvetica');
     ellipseMode(RADIUS);
@@ -613,4 +614,9 @@ function makeRandomPie() {
     } while (updateScores() >= -(2 * board.size - 6));
 
     update();
+}
+
+function touchReleased() {
+    mouseX = -1;
+    mouseY = -1;
 }
