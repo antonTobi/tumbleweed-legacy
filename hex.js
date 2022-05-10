@@ -24,7 +24,8 @@ class Hex {
         // first stack seen in each direction
         this.seen = new Array(6).fill(null);
 
-        // number of empty cells in each direction
+        // number of cells seen in each direction
+        // (up to and including first stack)
         this.distances = new Array(6);
         this.strength = 0;
     }

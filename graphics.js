@@ -279,7 +279,7 @@ function draw() {
         number = M.r + N;
         letter = letterCoordinates[M.q + number - 1];
         M = board[M.q][M.r];
-        if (visualization.getValue('Move preview') && board.isLegal(M)) {
+        if (visualization.getValue('Move preview') && mode != 'capture' && board.isLegal(M)) {
             temp = M;
             board.move(M.q, M.r);
         }
@@ -461,7 +461,7 @@ function clickHandler() {
                 board.move(H.q, H.r);
                 update();
                 if (gameplay.getValue('Autorespond')) {
-                    if (mode == "capture") {
+                    if (mode == 'capture') {
                         for (let H of board.legalMoves()) {
                             board.move(H.q, H.r);
                             if (board.captureAvailable()) {
@@ -471,7 +471,7 @@ function clickHandler() {
                                 return;
                             }
                         }
-                        generateCaptureProblem();
+                        generateCaptureProblem(false);
                     } else {
                         setTimeout(genmove, 1);
                     }
@@ -578,9 +578,15 @@ function loadRandomProblem() {
     update();
 }
 
-function generateCaptureProblem() {
+function generateCaptureProblem(newPosition = true) {
+    // if (newPosition) {
+    //     board.stabilize()
+    //     startingPosition = board.toString()
+    // }
+    // console.log(startingPosition)
+    // board = captureProblemFromPosition(startingPosition)
     board = randomCaptureIn2Puzzle(board.size);
-    mode = "capture";
+    mode = 'capture';
     update();
 }
 

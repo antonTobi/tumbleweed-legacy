@@ -438,11 +438,16 @@ class Board {
     isCaptureIn2Puzzle() {
         // add this line back in if input might contain captures
         // if (this.captureAvailable()) return false;
-        let solutions = 0;
+        let solution = null;
         for (let H of this.legalMoves()) {
             this.move(H.q, H.r);
+            let moves = this.legalMoves();
+            if (!moves.length) {
+                this.undo();
+                return false;
+            }
             let isSolution = true;
-            for (let H of this.legalMoves()) {
+            for (let H of moves) {
                 this.move(H.q, H.r);
                 if (!this.captureAvailable()) {
                     this.undo();
@@ -451,11 +456,39 @@ class Board {
                 }
                 this.undo();
             }
-            if (isSolution) solutions++;
-            if (solutions > 1) return false;
+            if (isSolution) {
+                if (solution) {
+                    return false;
+                } else {
+                    solution = H;
+                }
+            }
             this.undo();
         }
-        return (solutions == 1);
+        if (!solution) return false;
+        this.move(solution.q, solution.r);
+        let potentialShields = 0;
+        for (let H of solution.seen) {
+            if (H && H.color == -1 && H[1] > max(H.height, H[-1] - 1)) {
+                for (let i = 0; i < 6; i ++) {
+                    if (H.seen[i] && H.seen[i].color == 1) {
+                        potentialShields += H.distances[i] - 1
+                    }
+                }
+            }
+        }
+        this.undo();
+        return (potentialShields >= -6 + 2*this.size);
+    }
+
+    stabilize() {
+        for (let H of this.hexes) {
+            if (H.color) {
+                if (H[-H.color] > max(H.height, H[H.color] - 1)) {
+                    H.height = H[-H.color];
+                }
+            }
+        }
     }
 }
 
@@ -475,13 +508,7 @@ function randomStableBoard(size) {
             b.update(H.q, H.r, random([1, -1]), 1, false);
         }
     }
-    for (let H of b.hexes) {
-        if (H.color) {
-            if (H[-H.color] > max(H.height, H[H.color] - 1)) {
-                H.height = H[-H.color];
-            }
-        }
-    }
+    b.stabilize();
     return b;
 }
 
@@ -520,6 +547,20 @@ function randomBoard(size) {
     //     b.update(H.q, H.r, color, height, false);
     // }
     return b;
+}
+
+function captureProblemFromPosition(s) {
+    for (let i = 0; i < 1000; i++) {
+        let b = loadBoard(s);
+        b.makeRandomMoves(random([4, 6, 8, 10, 12]));
+        b.stabilize();
+        if (b.isCaptureIn2Puzzle()) {
+            b.moveHistory = [];
+            return b;
+        }
+    }
+    alert("Generation failed :( Try a different position!");
+    return loadBoard(s);
 }
 
 function randomBoardFromTemplate(s) {
