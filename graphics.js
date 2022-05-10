@@ -1,5 +1,7 @@
 const letterCoordinates = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
+mode = 'default';
+
 function setup() {
     createCanvas(100, 100).mouseClicked(clickHandler);
     textAlign(CENTER, CENTER);
@@ -445,20 +447,43 @@ function mouseMoved() {
     }
 }
 
+function mouseClicked() {
+    return false;
+}
+
 function clickHandler() {
     if (mouseButton == LEFT) {
         let H = L.pixelToHex(new Point(mouseX, mouseY)).round();
         if (board.contains(H.q, H.r, H.s)) {
+            if (mode == "capture" && board.moveNumber) {
+                undo();
+                return false;
+            }
             H = board[H.q][H.r];
             if (board.isLegal(H)) {
                 board.move(H.q, H.r);
                 update();
                 if (gameplay.getValue('Autorespond')) {
-                    setTimeout(genmove, 1);
+                    if (mode == "capture") {
+                        for (let H of board.legalMoves()) {
+                            board.move(H.q, H.r);
+                            if (board.captureAvailable()) {
+                                board.undo();
+                            } else {
+                                update();
+                                return false;
+                            }
+                        }
+                        generateCaptureProblem();
+                    } else {
+                        setTimeout(genmove, 1);
+                    }
+
                 }
             }
         }
     }
+    return false;
 }
 
 function keyPressed() {
@@ -558,6 +583,7 @@ function loadRandomProblem() {
 
 function generateCaptureProblem() {
     board = randomCaptureIn2Puzzle(board.size);
+    mode = "capture";
     update();
 }
 

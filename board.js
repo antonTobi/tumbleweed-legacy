@@ -1,7 +1,3 @@
-// TODO: Save game history in board.toString() somehow.
-
-// TODO: Come up with format for saving games + variations. Possibly just use sgf or pgn?
-
 class Board {
     constructor(size, addNeutral = true) {
         this.size = size;
@@ -38,8 +34,11 @@ class Board {
             null: this.hexes.length
         };
 
-        if (addNeutral && !gameplay.getValue('0-stacks'))
+        if (addNeutral && !gameplay.getValue('0-stacks')) {
             this.update(0, 0, 0, 2, false, true);
+        }
+
+        mode = 'default';
     }
 
     contains(q, r, s = -r - q) {
