@@ -1,6 +1,7 @@
 const letterCoordinates = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 function setup() {
+    createCanvas(100, 100).mouseClicked(clickHandler);
     textAlign(CENTER, CENTER);
     textFont('Helvetica');
     ellipseMode(RADIUS);
@@ -100,7 +101,7 @@ function newBoardPrompt() {
     if (size) {
         size = Number(size);
         if (2 <= size && size <= 11) {
-            storeItem('boardsize', size)
+            storeItem('boardsize', size);
             board = new Board(size);
             update();
         }
@@ -147,14 +148,13 @@ function updateScores() {
     gameplay.setValue(
         'Game info',
         `
-    Move ${board.moveNumber + 1} (${
-            board.turn > 0 ? 'red' : 'white'
+    Move ${board.moveNumber + 1} (${board.turn > 0 ? 'red' : 'white'
         } to play)<br>
     Red score: ${score[1]}<br>
     White score: ${score[-1]}<br>
     Uncontrolled cells: ${score[0]}`
     );
-    return score[1]-score[-1]
+    return score[1] - score[-1];
 }
 
 function draw() {
@@ -311,7 +311,7 @@ function draw() {
             if (distance) {
                 let stack =
                     board[M.q + distance * direction.q][
-                        M.r + distance * direction.r
+                    M.r + distance * direction.r
                     ];
                 if (stack.color) {
                     let target = L.hexToPixel(stack);
@@ -445,7 +445,7 @@ function mouseMoved() {
     }
 }
 
-function mousePressed() {
+function clickHandler() {
     if (mouseButton == LEFT) {
         let H = L.pixelToHex(new Point(mouseX, mouseY)).round();
         if (board.contains(H.q, H.r, H.s)) {
@@ -583,12 +583,12 @@ function generateCaptureProblem() {
 
 function makeRandomPie() {
     do {
-        board = new Board(max(board.size, 6))
-        let R = random(board.hexes.filter(H => H.height == -1))
-        board.move(R.q, R.r)
-        let W = random(board.hexes.filter(H => H.height == -1 && H[1] == 0))
-        board.move(W.q, W.r)
-    } while (updateScores() >= -(2*board.size-6))
+        board = new Board(max(board.size, 6));
+        let R = random(board.hexes.filter(H => H.height == -1));
+        board.move(R.q, R.r);
+        let W = random(board.hexes.filter(H => H.height == -1 && H[1] == 0));
+        board.move(W.q, W.r);
+    } while (updateScores() >= -(2 * board.size - 6));
 
-    update()
+    update();
 }
