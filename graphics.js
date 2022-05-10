@@ -619,4 +619,5 @@ function makeRandomPie() {
 function touchReleased() {
     mouseX = -1;
     mouseY = -1;
+    update();
 }
