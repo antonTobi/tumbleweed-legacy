@@ -168,7 +168,7 @@ function draw() {
 
     let lastMoveHex;
     let move = board.moveHistory[board.moveHistory.length - 1];
-    if (visualization.getValue('Last move') && move && board.moveNumber > 2) {
+    if (visualization.getValue('Last move') && move) {
         let [q, r, c, h] = move;
         lastMoveHex = board[q][r];
     }
@@ -453,7 +453,9 @@ function clickHandler() {
         let H = L.pixelToHex(new Point(mouseX, mouseY)).round();
         if (board.contains(H.q, H.r, H.s)) {
             if (mode == "capture" && board.moveNumber) {
-                undo();
+                board.undo();
+                board.undo();
+                update();
                 return;
             }
             H = board[H.q][H.r];
@@ -461,7 +463,7 @@ function clickHandler() {
                 board.move(H.q, H.r);
                 update();
                 if (mode == 'capture') {
-                    for (let H of board.legalMoves()) {
+                    for (let H of shuffle(board.legalMoves())) {
                         board.move(H.q, H.r);
                         if (board.captureAvailable()) {
                             board.undo();
@@ -470,7 +472,8 @@ function clickHandler() {
                             return;
                         }
                     }
-                    generateCaptureProblem();
+                    update();
+                    setTimeout(generateCaptureProblem, 200);
                 } else if (gameplay.getValue('Autorespond')) {
                     setTimeout(genmove, 1);
                 }
