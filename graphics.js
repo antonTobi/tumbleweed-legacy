@@ -3,7 +3,7 @@ const letterCoordinates = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 mode = 'default';
 
 function setup() {
-    canvas = createCanvas(100, 100)
+    canvas = createCanvas(100, 100);
     canvas.mouseClicked(clickHandler);
     textAlign(CENTER, CENTER);
     textFont('Helvetica');
@@ -460,27 +460,23 @@ function clickHandler() {
             if (board.isLegal(H)) {
                 board.move(H.q, H.r);
                 update();
-                if (gameplay.getValue('Autorespond')) {
-                    if (mode == 'capture') {
-                        for (let H of board.legalMoves()) {
-                            board.move(H.q, H.r);
-                            if (board.captureAvailable()) {
-                                board.undo();
-                            } else {
-                                update();
-                                return;
-                            }
+                if (mode == 'capture') {
+                    for (let H of board.legalMoves()) {
+                        board.move(H.q, H.r);
+                        if (board.captureAvailable()) {
+                            board.undo();
+                        } else {
+                            update();
+                            return;
                         }
-                        generateCaptureProblem(false);
-                    } else {
-                        setTimeout(genmove, 1);
                     }
-
+                    generateCaptureProblem();
+                } else if (gameplay.getValue('Autorespond')) {
+                    setTimeout(genmove, 1);
                 }
             }
         }
     }
-    return;
 }
 
 function keyPressed() {
@@ -578,13 +574,7 @@ function loadRandomProblem() {
     update();
 }
 
-function generateCaptureProblem(newPosition = true) {
-    // if (newPosition) {
-    //     board.stabilize()
-    //     startingPosition = board.toString()
-    // }
-    // console.log(startingPosition)
-    // board = captureProblemFromPosition(startingPosition)
+function generateCaptureProblem() {
     board = randomCaptureIn2Puzzle(board.size);
     mode = 'capture';
     update();

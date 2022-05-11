@@ -435,7 +435,7 @@ class Board {
         return false;
     }
 
-    isCaptureIn2Puzzle() {
+    isCaptureIn2Puzzle(minShields) {
         // add this line back in if input might contain captures
         // if (this.captureAvailable()) return false;
         let solution = null;
@@ -478,7 +478,7 @@ class Board {
             }
         }
         this.undo();
-        return (potentialShields >= -6 + 2*this.size);
+        return (potentialShields >= minShields);
     }
 
     stabilize() {
@@ -493,10 +493,11 @@ class Board {
 }
 
 function randomCaptureIn2Puzzle(size) {
+    let minShields = floor(random(3*size-5))
     let b;
     do {
         b = randomStableBoard(size);
-    } while (!b.isCaptureIn2Puzzle());
+    } while (!b.isCaptureIn2Puzzle(minShields));
     b.moveHistory = [];
     return b;
 }
@@ -505,7 +506,7 @@ function randomStableBoard(size) {
     let b = new Board(size, false);
     for (let H of b.hexes) {
         if (random() > 0.85) {
-            b.update(H.q, H.r, random([1, -1]), 1, false);
+            b.update(H.q, H.r, random([1, -1]), random([1, 1, 1, 2, 2, 3]), false);
         }
     }
     b.stabilize();
