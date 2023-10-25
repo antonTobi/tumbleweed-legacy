@@ -74,6 +74,11 @@ function setup() {
         board = new Board(getItem('boardsize') || 6);
     }
 
+    let t = getURLParams().turn;
+    if (t == 'W') {
+        board.turn = -1;
+    }
+
     stackColors = {
         1: color(240, 0, 0),
         0: 'gray',
@@ -499,6 +504,9 @@ function keyPressed() {
     if (key == 'p') {
         pass();
     }
+    if (keyCode == LEFT_ARROW) {
+        undo();
+    }
     let color, height;
     if (keyCode == BACKSPACE) {
         color = null;
@@ -568,8 +576,10 @@ function centered(s, x, y, r) {
 
 function updateURL() {
     let s = board.toString();
-    history.replaceState({}, '', '?board=' + s);
+    let t = board.turn > 0 ? 'R' : 'W'
+    history.replaceState({}, '', `?board=${s}&turn=${t}` );
     storeItem('board', s);
+    storeItem('turn', t)
 }
 
 function loadRandomProblem() {
